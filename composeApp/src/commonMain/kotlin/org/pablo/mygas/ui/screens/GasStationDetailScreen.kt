@@ -36,10 +36,10 @@ import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GasolineraDetailScreen(
+fun GasStationDetailScreen(
     gasolinera: ListaEESSPrecio,
     onBack: () -> Unit,
-    gasolineraDetailViewModel: GasolineraDetailViewModel
+    viewModel: GasolineraDetailViewModel
 ) {
 
     Screen {

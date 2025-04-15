@@ -26,7 +26,7 @@ import org.pablo.mygas.ui.viewmodels.HomeViewModel
 @Composable
 fun HomeScreen(
     onGasolineraClick: (ListaEESSPrecio) -> Unit,
-    homeViewModel: HomeViewModel
+    viewModel: HomeViewModel
 ) {
     Screen {
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -42,7 +42,7 @@ fun HomeScreen(
 
         ) { padding ->
 
-            val isLoading = homeViewModel.state.isLoading
+            val isLoading = viewModel.state.isLoading
             if (isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(padding),
@@ -58,17 +58,17 @@ fun HomeScreen(
 
                 ) {
                     CustomDropDownMenu(
-                        itemList = homeViewModel.municipios,
+                        itemList = viewModel.municipios,
                         onValueChange = {
                             println("municipio seleccionado: ${it.municipio}")
                             println("idMunicipio seleccionado: ${it.idMunicipio}")
                             println("idMunicipio seleccionado: $it")
-                            homeViewModel.getGasolinerasByMunicipio(it.idMunicipio)
+                            viewModel.getGasolinerasByMunicipio(it.idMunicipio)
                         },
-                        municipio = homeViewModel.municipio
+                        municipio = viewModel.municipio
                     )
                     ListaGasolineras(
-                        gasolineras = homeViewModel.gasolineras,
+                        gasolineras = viewModel.gasolineras,
                         onClick = { onGasolineraClick(it) }
                     )
                 }
