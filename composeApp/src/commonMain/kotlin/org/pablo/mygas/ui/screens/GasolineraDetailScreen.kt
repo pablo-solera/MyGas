@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,15 +27,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import mygas.composeapp.generated.resources.Res
 import mygas.composeapp.generated.resources.gasolinera
 import org.jetbrains.compose.resources.painterResource
 import org.pablo.mygas.data.ListaEESSPrecio
 import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
-import org.pablo.mygas.utils.MapOpener
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

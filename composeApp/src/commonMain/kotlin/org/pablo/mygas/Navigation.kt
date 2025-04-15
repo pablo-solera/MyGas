@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
@@ -22,6 +23,7 @@ import org.pablo.mygas.ui.screens.GasolineraDetailScreen
 import org.pablo.mygas.ui.screens.GasolineraFavoriteScreen
 import org.pablo.mygas.ui.screens.HomeScreen
 import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
+import org.pablo.mygas.ui.viewmodels.GasolineraFavoriteViewModel
 import org.pablo.mygas.ui.viewmodels.HomeViewModel
 
 @Composable
@@ -36,6 +38,7 @@ fun Navigation() {
     }
     val viewModel = viewModel { HomeViewModel(GasolinerasRepository(MunicipioService(client))) }
     val detailViewModel = viewModel { GasolineraDetailViewModel(GasolinerasRepository(MunicipioService(client))) }
+    val favoriteViewModel = viewModel { GasolineraFavoriteViewModel() }
 
     Scaffold(
         bottomBar = { BottomNavigationBar(navController = navController) }
@@ -44,7 +47,7 @@ fun Navigation() {
             composable(BottomNavItem.Home.route) { HomeScreen(onGasolineraClick = { gasolinera ->
                 navController.navigate("detail/${gasolinera.Dirección}/${gasolinera.Latitud}/${gasolinera.longitud}/${gasolinera.precioGasoleoA}/${gasolinera.precioGasolina95E5}/${gasolinera.rotulo}")
             },viewModel) }
-            composable(BottomNavItem.Favorite.route) { GasolineraFavoriteScreen() }
+            composable(BottomNavItem.Favorite.route) { GasolineraFavoriteScreen(favoriteViewModel) }
             composable(route = "detail/{direccion}/{latitud}/{longitud}/{precioGasoleo}/{precioGasolina}/{rotulo}",
                 arguments = listOf(
                     navArgument("direccion") { type = NavType.StringType },
@@ -55,6 +58,7 @@ fun Navigation() {
                     navArgument("rotulo") { type = NavType.StringType }
                 )
             ) { backstackEntry ->
+                val prueba = backstackEntry.toRoute<BottomNavItem.Home>()
                 val direccion = backstackEntry.arguments?.getString("direccion")
                 val latitud = backstackEntry.arguments?.getString("latitud")
                 val longitud = backstackEntry.arguments?.getString("longitud")

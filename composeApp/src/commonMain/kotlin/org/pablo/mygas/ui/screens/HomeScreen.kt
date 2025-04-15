@@ -1,19 +1,11 @@
 package org.pablo.mygas.ui.screens
 
-import androidx.compose.foundation.background
-import org.pablo.mygas.ui.CustomDropDownMenu
-
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -21,17 +13,13 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.unit.dp
-import io.ktor.util.logging.Logger
 import mygas.composeapp.generated.resources.Res
 import mygas.composeapp.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
 import org.pablo.mygas.data.ListaEESSPrecio
-import org.pablo.mygas.data.Movie
+import org.pablo.mygas.ui.CustomDropDownMenu
 import org.pablo.mygas.ui.ListaGasolineras
-
 import org.pablo.mygas.ui.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
