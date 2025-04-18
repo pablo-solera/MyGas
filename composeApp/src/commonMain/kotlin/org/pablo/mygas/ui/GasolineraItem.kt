@@ -21,6 +21,7 @@ import mygas.composeapp.generated.resources.Res
 import mygas.composeapp.generated.resources.gasolinera
 import org.jetbrains.compose.resources.painterResource
 import org.pablo.mygas.data.ListaEESSPrecio
+import org.pablo.mygas.utils.GasStationImage
 
 
 @Composable
@@ -39,20 +40,12 @@ fun GasolineraItem(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Image(
-                painterResource(Res.drawable.gasolinera), contentDescription = null,
+                painterResource(GasStationImage().getImage(gasolinera.rotulo.split(" ").first())), contentDescription = null,
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(16.dp))
-                    .size(75.dp)
+                    .size(50.dp)
                     .aspectRatio(1f)
             )
-            /*AsyncImage(
-                model = "https://picsum.photos/100/100",
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .clip( shape = RoundedCornerShape(16.dp))
-                    .size(75.dp)
-            )*/
             Column {
                 Text(
                     text = gasolinera.rotulo,

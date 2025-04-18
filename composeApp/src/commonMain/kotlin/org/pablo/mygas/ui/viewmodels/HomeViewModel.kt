@@ -12,6 +12,8 @@ import io.ktor.http.Headers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.pablo.mygas.data.GasolinerasRepository
 import org.pablo.mygas.data.GasolinerasResponse
@@ -19,10 +21,20 @@ import org.pablo.mygas.data.ListaEESSPrecio
 import org.pablo.mygas.data.MunicipioItem
 import org.pablo.mygas.data.MunicipioService
 
+data class HomeState(
+    val municipio: String = "",
+    val isLoading: Boolean = false,
+    val municipios: List<MunicipioItem> = emptyList(),
+    val gasolineras: List<ListaEESSPrecio> = emptyList(),
+    )
 
 class HomeViewModel(
     private val gasolinerasRepository: GasolinerasRepository
-): ViewModel() {
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(HomeState())
+    val uiState: StateFlow<HomeState> = _uiState.asStateFlow()
+
     private val _municipio = MutableStateFlow("")
     val municipio: String get() = _municipio.value
 
@@ -54,19 +66,22 @@ class HomeViewModel(
                 //municipios = gasolinerasRepository.getMunicipiosByProvincia("28"),
                 //gasolineras = gasolinerasRepository.getGasolinerasByMunicipio("4280"),
                 //gasolinerasOrdenadas = gasolinerasRepository.getGasolinerasByMunicipio("4358")
-                    //.sortedBy { it.precioGasolina95E5 }
+                //.sortedBy { it.precioGasolina95E5 }
             )
+
         }
     }
 
     fun getGasolinerasByMunicipio(municipioId: String) {
         viewModelScope.launch {
             state = UiState(isLoading = true)
-            _gasolineras.value = gasolinerasRepository.getGasolinerasByMunicipio(municipioId).sortedBy { it.precioGasolina95E5 }
-            _municipio.value=  municipios.find { it.idMunicipio == municipioId }?.municipio ?: ""
-            state =UiState(isLoading = false)
-           //state.gasolineras  = municipioService.getEstacionesTerrestresByMunicipio(municipioId)
-             //   .body<GasolinerasResponse>().ListaEESSPrecio
+            _gasolineras.value = gasolinerasRepository.getGasolinerasByMunicipio(municipioId)
+                .sortedBy { it.precioGasolina95E5 }
+            _municipio.value = municipios.find { it.idMunicipio == municipioId }?.municipio ?: ""
+            state = UiState(isLoading = false)
+
+            //state.gasolineras  = municipioService.getEstacionesTerrestresByMunicipio(municipioId)
+            //   .body<GasolinerasResponse>().ListaEESSPrecio
             /*state = UiState(isLoading = true)
             state = UiState(
                  gasolineras = municipioService.getEstacionesTerrestresByMunicipio(municipioId)

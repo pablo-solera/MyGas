@@ -1,23 +1,78 @@
 package org.pablo.mygas.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.pablo.mygas.data.ComunidadAutonoma
+import org.pablo.mygas.data.MunicipioItem
+import org.pablo.mygas.domain.GetAllComunidadesAutonomasUseCase
+import org.pablo.mygas.domain.GetAllMunicipiosByProvinciaUseCase
+import org.pablo.mygas.utils.NetworkError
+import org.pablo.mygas.utils.Provincia
+import org.pablo.mygas.utils.onError
+import org.pablo.mygas.utils.onSuccess
 
 data class GasolineraFavoriteState(
-    val isChecked: Boolean = false
+    val isChecked: Boolean = false,
+    val ccaas: List<ComunidadAutonoma>? = null,
+    val municipios: List<MunicipioItem>? = null,
+    val isLoading: Boolean = false,
+    val errorMessage: NetworkError? = null,
 )
 
-class GasolineraFavoriteViewModel : ViewModel() {
+class GasolineraFavoriteViewModel(
+    val getAllComunidadesAutonomasUseCase: GetAllComunidadesAutonomasUseCase,
+    val getAllMunicipiosByProvinciaUseCase: GetAllMunicipiosByProvinciaUseCase
+) : ViewModel() {
 
     private val _state = MutableStateFlow(GasolineraFavoriteState())
     val state: StateFlow<GasolineraFavoriteState> = _state.asStateFlow()
 
-    fun toggleChecked(checked: Boolean){
+    init {
+        viewModelScope.launch {
+            _state.update { currentState ->
+                currentState.copy(isLoading = true)
+            }
+            getAllMunicipiosByProvinciaUseCase(Provincia.MADRID.id)
+                .onSuccess { municipios ->
+                    _state.update { currentState ->
+                        currentState.copy(
+                            municipios = municipios,
+                            isLoading = false
+                        )
+                    }
+                }.onError {
+                    // Handle error
+                    _state.update { currentState ->
+                        currentState.copy(errorMessage = it)
+                    }
+                    println("Error garrafal: $it")
+                }
+        }
+    }
+
+    fun toggleChecked(checked: Boolean) {
         _state.update { currentState ->
             currentState.copy(isChecked = checked)
+        }
+    }
+
+    fun getAllComunidadesAutonomas() {
+        viewModelScope.launch {
+            getAllComunidadesAutonomasUseCase()
+                .onSuccess { comunidades ->
+                    _state.update { currentState ->
+                        currentState.copy(ccaas = comunidades)
+                    }
+                }.onError {
+                    // Handle error
+                    println("Error garrafal: $it")
+                }
         }
     }
 }

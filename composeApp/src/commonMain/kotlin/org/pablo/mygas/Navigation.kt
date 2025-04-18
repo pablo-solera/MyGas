@@ -8,13 +8,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.pablo.mygas.data.GasolinerasRepository
 import org.pablo.mygas.data.ListaEESSPrecio
 import org.pablo.mygas.data.MunicipioService
+import org.pablo.mygas.domain.GetAllComunidadesAutonomasUseCase
+import org.pablo.mygas.domain.GetAllMunicipiosByProvinciaUseCase
 import org.pablo.mygas.ui.screens.GasStationDetailScreen
+import org.pablo.mygas.ui.screens.GasolineraFavoriteScreen
 import org.pablo.mygas.ui.screens.HomeScreen
 import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
 import org.pablo.mygas.ui.viewmodels.GasolineraFavoriteViewModel
@@ -25,6 +33,9 @@ fun Navigation() {
     val navController = rememberNavController()
     val client = remember {
         HttpClient {
+            install(Logging) {
+                level = LogLevel.ALL
+            }
             install(ContentNegotiation) {
                 json(Json { ignoreUnknownKeys = true })
             }
@@ -34,7 +45,12 @@ fun Navigation() {
     val viewModel = viewModel { HomeViewModel(GasolinerasRepository(MunicipioService(client))) }
     val detailViewModel =
         viewModel { GasolineraDetailViewModel(GasolinerasRepository(MunicipioService(client))) }
-    val favoriteViewModel = viewModel { GasolineraFavoriteViewModel() }
+    val favoriteViewModel = viewModel {
+        GasolineraFavoriteViewModel(
+            GetAllComunidadesAutonomasUseCase(GasolinerasRepository(MunicipioService(client))),
+            GetAllMunicipiosByProvinciaUseCase(GasolinerasRepository(MunicipioService(client)))
+        )
+    }
 
     NavHost(navController = navController, startDestination = Home) {
         composable<Home> {
@@ -79,6 +95,9 @@ fun Navigation() {
                 onBack = { navController.navigateUp() },
                 viewModel = detailViewModel
             )
+        }
+        composable<Favorite> {
+            GasolineraFavoriteScreen(favoriteViewModel)
         }
     }
     /*Scaffold(
