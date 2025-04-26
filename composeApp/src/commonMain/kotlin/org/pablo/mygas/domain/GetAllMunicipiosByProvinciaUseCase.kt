@@ -9,6 +9,6 @@ class GetAllMunicipiosByProvinciaUseCase(
     private val repository: GasolinerasRepository
 ) {
     suspend operator fun invoke(idProvincia: Int): Result<List<MunicipioItem>, NetworkError> {
-        return repository.getMunicipiosByProvincia2(idProvincia)
+        return repository.getMunicipiosByProvincia(idProvincia)
     }
 }

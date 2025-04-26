@@ -20,68 +20,77 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import mygas.composeapp.generated.resources.Res
 import mygas.composeapp.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
+import org.pablo.mygas.BottomNavigationBar
 import org.pablo.mygas.data.ListaEESSPrecio
 import org.pablo.mygas.ui.CustomDropDownMenu
 import org.pablo.mygas.ui.ListaGasolineras
+import org.pablo.mygas.ui.NoGasStationsFound
 import org.pablo.mygas.ui.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onGasolineraClick: (ListaEESSPrecio) -> Unit,
+    bottomBar: @Composable () -> Unit = {},
     viewModel: HomeViewModel
 ) {
     val state by viewModel.uiState.collectAsState()
-    Screen {
-        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(stringResource(Res.string.app_name)) },
-                    scrollBehavior = scrollBehavior
 
-                )
-            },
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.app_name)) },
+                scrollBehavior = scrollBehavior
 
-        ) { padding ->
+            )
+        },
+        bottomBar = bottomBar,
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
 
-            val isLoading = viewModel.state.isLoading
-            if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            } else {
-                Column(
-                    modifier = Modifier
-                        .padding(padding),
-                    horizontalAlignment = Alignment.CenterHorizontally
+    ) { padding ->
 
-                ) {
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(padding),
+                horizontalAlignment = Alignment.CenterHorizontally
+
+            ) {
+                state.municipios?.let { it ->
                     CustomDropDownMenu(
-                        itemList = viewModel.municipios,
+                        itemList = it,
                         onValueChange = {
                             println("municipio seleccionado: ${it.municipio}")
                             println("idMunicipio seleccionado: ${it.idMunicipio}")
                             println("idMunicipio seleccionado: $it")
-                            viewModel.getGasolinerasByMunicipio(it.idMunicipio)
+                            viewModel.getGasolinerasByMunicipio(it.idMunicipio.toInt())
                         },
-                        municipio = viewModel.municipio
-                    )
-                    ListaGasolineras(
-                        gasolineras = viewModel.gasolineras,
-                        onClick = { onGasolineraClick(it) }
+                        municipio = state.municipio
                     )
                 }
-
-
+                state.gasolineras?.let { gasolineras ->
+                    if (gasolineras.isEmpty()) {
+                        NoGasStationsFound()
+                    } else {
+                        ListaGasolineras(
+                            gasolineras = gasolineras,
+                            onClick = { onGasolineraClick(it) }
+                        )
+                    }
+                }
             }
+
+
         }
-
-
     }
+
 
 }

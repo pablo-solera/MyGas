@@ -8,18 +8,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.pablo.mygas.data.GasolinerasRepository
 import org.pablo.mygas.data.ListaEESSPrecio
 import org.pablo.mygas.data.MunicipioService
 import org.pablo.mygas.domain.GetAllComunidadesAutonomasUseCase
+import org.pablo.mygas.domain.GetAllGasolinerasByMunicipioUseCase
 import org.pablo.mygas.domain.GetAllMunicipiosByProvinciaUseCase
 import org.pablo.mygas.ui.screens.GasStationDetailScreen
 import org.pablo.mygas.ui.screens.GasolineraFavoriteScreen
@@ -42,13 +40,19 @@ fun Navigation() {
         }
     }
 
-    val viewModel = viewModel { HomeViewModel(GasolinerasRepository(MunicipioService(client))) }
+    val viewModel = viewModel {
+        HomeViewModel(
+            GetAllGasolinerasByMunicipioUseCase(GasolinerasRepository(MunicipioService(client))),
+            GetAllMunicipiosByProvinciaUseCase(GasolinerasRepository(MunicipioService(client)))
+        )
+    }
     val detailViewModel =
         viewModel { GasolineraDetailViewModel(GasolinerasRepository(MunicipioService(client))) }
     val favoriteViewModel = viewModel {
         GasolineraFavoriteViewModel(
             GetAllComunidadesAutonomasUseCase(GasolinerasRepository(MunicipioService(client))),
-            GetAllMunicipiosByProvinciaUseCase(GasolinerasRepository(MunicipioService(client)))
+            GetAllMunicipiosByProvinciaUseCase(GasolinerasRepository(MunicipioService(client))),
+            GetAllGasolinerasByMunicipioUseCase(GasolinerasRepository(MunicipioService(client)))
         )
     }
 
@@ -67,7 +71,11 @@ fun Navigation() {
                         )
                     )
                 },
-                viewModel = viewModel
+                viewModel = viewModel,
+                bottomBar = {
+                    BottomNavigationBar(navController = navController)
+                }
+
             )
         }
         composable<GasStationDetail> { backStackEntry ->
