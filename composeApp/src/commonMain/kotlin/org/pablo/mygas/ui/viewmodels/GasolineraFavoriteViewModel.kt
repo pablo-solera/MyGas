@@ -9,8 +9,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.pablo.mygas.data.ComunidadAutonoma
+import org.pablo.mygas.data.ListaEESSPrecio
 import org.pablo.mygas.data.MunicipioItem
 import org.pablo.mygas.domain.GetAllComunidadesAutonomasUseCase
+import org.pablo.mygas.domain.GetAllGasolinerasByMunicipioUseCase
 import org.pablo.mygas.domain.GetAllMunicipiosByProvinciaUseCase
 import org.pablo.mygas.utils.NetworkError
 import org.pablo.mygas.utils.Provincia
@@ -23,11 +25,13 @@ data class GasolineraFavoriteState(
     val municipios: List<MunicipioItem>? = null,
     val isLoading: Boolean = false,
     val errorMessage: NetworkError? = null,
+    val gasolineras: List<ListaEESSPrecio>? = null,
 )
 
 class GasolineraFavoriteViewModel(
     val getAllComunidadesAutonomasUseCase: GetAllComunidadesAutonomasUseCase,
-    val getAllMunicipiosByProvinciaUseCase: GetAllMunicipiosByProvinciaUseCase
+    val getAllMunicipiosByProvinciaUseCase: GetAllMunicipiosByProvinciaUseCase,
+    val getAllGasolinerasByMunicipioUseCase: GetAllGasolinerasByMunicipioUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(GasolineraFavoriteState())
@@ -38,11 +42,11 @@ class GasolineraFavoriteViewModel(
             _state.update { currentState ->
                 currentState.copy(isLoading = true)
             }
-            getAllMunicipiosByProvinciaUseCase(Provincia.MADRID.id)
-                .onSuccess { municipios ->
+            getAllGasolinerasByMunicipioUseCase(Provincia.ALCALA_DE_HENARES.id)
+                .onSuccess { response ->
                     _state.update { currentState ->
                         currentState.copy(
-                            municipios = municipios,
+                            gasolineras = response.ListaEESSPrecio,
                             isLoading = false
                         )
                     }

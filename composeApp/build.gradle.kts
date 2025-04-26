@@ -36,8 +36,10 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.koin.androidx.compose)
+            // implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.okhttp)
-            //implementation(libs.koin.android)
+            implementation(libs.koin.android)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -60,6 +62,10 @@ kotlin {
             implementation(libs.ktor.serialization.json)
             implementation(libs.navigation.compose)
             implementation(libs.kotlinx.serialization.json)
+
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
 
             /*api(libs.koin.core)
             implementation(libs.koin.android)
@@ -90,6 +96,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        //buildConfigField("String", "GOOGLE_MAPS_API_KEY", "AIzaSyAYk7lMFAb_tZjVD1zcDlipBE-LyA4PqSI")
     }
     packaging {
         resources {

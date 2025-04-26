@@ -11,6 +11,9 @@ class GasolinerasRepository(
         return municipioService.getEstacionesTerrestresByMunicipio(municipioId)
             .body<GasolinerasResponse>().ListaEESSPrecio
     }
+    suspend fun getGasolinerasByMunicipio2(municipioId: Int): Result<GasolinerasResponse, NetworkError> {
+        return municipioService.getGasolinerasByMunicipio(municipioId)
+    }
 
     suspend fun getMunicipiosByProvincia(provinciaId: String): List<MunicipioItem> {
         return municipioService.getMunicipiosByProvincia(provinciaId).body()

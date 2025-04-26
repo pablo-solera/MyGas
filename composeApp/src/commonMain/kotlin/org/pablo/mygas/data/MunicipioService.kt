@@ -13,6 +13,10 @@ import org.pablo.mygas.utils.Result
 class MunicipioService(
     private val client: HttpClient
 ) {
+    suspend fun getComunidadesAutonomas(): HttpResponse {
+        return client
+            .get("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/Listados/ComunidadesAutonomas")
+    }
 
     suspend fun getComunidadesAutonomas2(): Result<List<ComunidadAutonoma>, NetworkError> {
         val response = try {
@@ -29,6 +33,7 @@ class MunicipioService(
                 val responseBody = response.body<List<ComunidadAutonoma>>()
                 Result.Success(responseBody)
             }
+
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             403 -> Result.Error(NetworkError.FORBIDDEN)
             404 -> Result.Error(NetworkError.NOT_FOUND)
@@ -74,8 +79,26 @@ class MunicipioService(
             .get("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroMunicipio/$municipioId")
     }
 
-    suspend fun getComunidadesAutonomas(): HttpResponse {
-        return client
-            .get("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/Listados/ComunidadesAutonomas")
+    suspend fun getGasolinerasByMunicipio(municipioId: Int): Result<GasolinerasResponse, NetworkError> {
+        val response = try {
+            client.get("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroMunicipio/$municipioId")
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        } catch (e: Exception) {
+            return Result.Error(NetworkError.UNKNOWN)
+        }
+        return when (response.status.value) {
+            in 200..299 -> {
+                val responseBody = response.body<GasolinerasResponse>()
+                Result.Success(responseBody)
+            }
+
+            408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
+            in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
     }
+
 }
