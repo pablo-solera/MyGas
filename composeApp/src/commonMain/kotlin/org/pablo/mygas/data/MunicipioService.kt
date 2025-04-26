@@ -3,7 +3,6 @@ package org.pablo.mygas.data
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.statement.HttpResponse
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
 import org.pablo.mygas.utils.NetworkError
@@ -13,12 +12,8 @@ import org.pablo.mygas.utils.Result
 class MunicipioService(
     private val client: HttpClient
 ) {
-    suspend fun getComunidadesAutonomas(): HttpResponse {
-        return client
-            .get("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/Listados/ComunidadesAutonomas")
-    }
 
-    suspend fun getComunidadesAutonomas2(): Result<List<ComunidadAutonoma>, NetworkError> {
+    suspend fun getComunidadesAutonomas(): Result<List<ComunidadAutonoma>, NetworkError> {
         val response = try {
             client.get("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/Listados/ComunidadesAutonomas")
         } catch (e: UnresolvedAddressException) {
@@ -46,12 +41,8 @@ class MunicipioService(
         }
     }
 
-    suspend fun getMunicipiosByProvincia(provinciaId: String): HttpResponse {
-        return client
-            .get("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/Listados/MunicipiosPorProvincia/$provinciaId")
-    }
 
-    suspend fun getMunicipiosByProvincia2(provinciaId: Int): Result<List<MunicipioItem>, NetworkError> {
+    suspend fun getMunicipiosByProvincia(provinciaId: Int): Result<List<MunicipioItem>, NetworkError> {
 
         val response = try {
             client.get("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/Listados/MunicipiosPorProvincia/$provinciaId")
@@ -74,10 +65,6 @@ class MunicipioService(
         }
     }
 
-    suspend fun getEstacionesTerrestresByMunicipio(municipioId: String): HttpResponse {
-        return client
-            .get("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroMunicipio/$municipioId")
-    }
 
     suspend fun getGasolinerasByMunicipio(municipioId: Int): Result<GasolinerasResponse, NetworkError> {
         val response = try {

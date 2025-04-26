@@ -9,6 +9,6 @@ class GetAllComunidadesAutonomasUseCase(
     private val repository: GasolinerasRepository
 ) {
     suspend operator fun invoke(): Result<List<ComunidadAutonoma>, NetworkError> {
-        return repository.getComunidadesAutonomas2()
+        return repository.getComunidadesAutonomas()
     }
 }
