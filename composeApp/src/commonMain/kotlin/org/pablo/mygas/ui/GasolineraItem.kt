@@ -17,10 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import mygas.composeapp.generated.resources.Res
-import mygas.composeapp.generated.resources.gasolinera
 import org.jetbrains.compose.resources.painterResource
-import org.pablo.mygas.data.ListaEESSPrecio
+import org.pablo.mygas.data.remote.ListaEESSPrecio
 import org.pablo.mygas.utils.GasStationImage
 
 

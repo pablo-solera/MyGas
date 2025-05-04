@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.pablo.mygas.data.ListaEESSPrecio
-import org.pablo.mygas.data.MunicipioItem
+import org.pablo.mygas.data.remote.ListaEESSPrecio
+import org.pablo.mygas.data.remote.MunicipioItem
 import org.pablo.mygas.domain.GetAllGasolinerasByMunicipioUseCase
 import org.pablo.mygas.domain.GetAllMunicipiosByProvinciaUseCase
 import org.pablo.mygas.utils.Provincia

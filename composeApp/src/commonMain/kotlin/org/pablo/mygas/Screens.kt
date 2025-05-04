@@ -2,6 +2,16 @@ package org.pablo.mygas
 
 import kotlinx.serialization.Serializable
 
+
+@Serializable
+object HomeGraph
+
+@Serializable
+object FavoriteGraph
+
+@Serializable
+object ProfileGraph
+
 @Serializable
 data class GasStationDetail(
     val location: String,

@@ -28,11 +28,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImagePainter
-import mygas.composeapp.generated.resources.Res
-import mygas.composeapp.generated.resources.gasolinera
 import org.jetbrains.compose.resources.painterResource
-import org.pablo.mygas.data.ListaEESSPrecio
+import org.koin.compose.viewmodel.koinViewModel
+import org.pablo.mygas.data.remote.ListaEESSPrecio
 import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
 import org.pablo.mygas.utils.GasStationImage
 
@@ -41,103 +39,104 @@ import org.pablo.mygas.utils.GasStationImage
 fun GasStationDetailScreen(
     gasolinera: ListaEESSPrecio,
     onBack: () -> Unit,
-    viewModel: GasolineraDetailViewModel
+    viewModel: GasolineraDetailViewModel = koinViewModel()
 ) {
 
-    Screen {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(gasolinera.rotulo) },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                contentDescription = "Back"
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                imageVector = Icons.Default.FavoriteBorder,
-                                contentDescription = "Back"
-                            )
 
-
-                        }
-                    }
-                )
-
-            }
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
-
-            ) {
-                Image(
-                    painterResource(GasStationImage().getImage(gasolinera.rotulo.split(" ").first())), contentDescription = null,
-                    modifier = Modifier
-                        .clip(shape = RoundedCornerShape(16.dp))
-                        .size(75.dp)
-                        .aspectRatio(1f)
-                )
-                Spacer(modifier = Modifier.padding(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "Gasóleo",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = gasolinera.precioGasoleoA,
-                            style = MaterialTheme.typography.titleLarge
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(gasolinera.rotulo) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = "Back"
                         )
                     }
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    Column {
-                        Text(
-                            text = "Gasolina",
-                            style = MaterialTheme.typography.bodyMedium
+                },
+                actions = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            imageVector = Icons.Default.FavoriteBorder,
+                            contentDescription = "Back"
                         )
-                        Text(
-                            text = gasolinera.precioGasolina95E5,
-                            style = MaterialTheme.typography.titleLarge
-                        )
+
+
                     }
                 }
-                Spacer(modifier = Modifier.padding(16.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = "Dirección",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Text(
-                                text = gasolinera.Dirección,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                imageVector = Icons.Default.LocationOn,
-                                contentDescription = "Back"
-                            )
-                        }
-                    }
-            }
+            )
 
         }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+
+        ) {
+            Image(
+                painterResource(GasStationImage().getImage(gasolinera.rotulo.split(" ").first())),
+                contentDescription = null,
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(16.dp))
+                    .size(75.dp)
+                    .aspectRatio(1f)
+            )
+            Spacer(modifier = Modifier.padding(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Gasóleo",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = gasolinera.precioGasoleoA,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+                Spacer(modifier = Modifier.padding(8.dp))
+                Column {
+                    Text(
+                        text = "Gasolina",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = gasolinera.precioGasolina95E5,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.padding(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Dirección",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = gasolinera.Dirección,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Back"
+                    )
+                }
+            }
+        }
+
     }
+
 }

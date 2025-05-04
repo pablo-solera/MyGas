@@ -7,7 +7,8 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
-    //alias(libs.plugins.ksp)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -65,11 +66,8 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
-
-            //implementation(libs.androidx.material3)
-            //implementation(libs.room.runtime)
-            //implementation(libs.room.ktx)
-            //implementation(libs.room.compiler)
+            implementation(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
 
         }
         desktopMain.dependencies {
@@ -112,6 +110,14 @@ dependencies {
     //implementation(project(":composeApp"))
     //implementation(libs.androidx.room.common)
     debugImplementation(compose.uiTooling)
+    setOf(
+        "kspAndroid", "kspIosX64", "kspIosArm64", "kspIosSimulatorArm64"
+    ).forEach {
+        add(it, libs.room.compiler)
+    }
+}
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 compose.desktop {

@@ -1,10 +1,12 @@
-package org.pablo.mygas.data
+package org.pablo.mygas.data.remote
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
+import org.pablo.mygas.data.remote.responses.ComunidadAutonomaResponse
+import org.pablo.mygas.data.remote.responses.GasolinerasResponse
 import org.pablo.mygas.utils.NetworkError
 import org.pablo.mygas.utils.Result
 
@@ -13,7 +15,7 @@ class MunicipioService(
     private val client: HttpClient
 ) {
 
-    suspend fun getComunidadesAutonomas(): Result<List<ComunidadAutonoma>, NetworkError> {
+    suspend fun getComunidadesAutonomas(): Result<List<ComunidadAutonomaResponse>, NetworkError> {
         val response = try {
             client.get("https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/Listados/ComunidadesAutonomas")
         } catch (e: UnresolvedAddressException) {
@@ -25,7 +27,7 @@ class MunicipioService(
         }
         return when (response.status.value) {
             in 200..299 -> {
-                val responseBody = response.body<List<ComunidadAutonoma>>()
+                val responseBody = response.body<List<ComunidadAutonomaResponse>>()
                 Result.Success(responseBody)
             }
 

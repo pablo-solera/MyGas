@@ -1,7 +1,7 @@
 package org.pablo.mygas.domain
 
-import org.pablo.mygas.data.GasolinerasRepository
-import org.pablo.mygas.data.MunicipioItem
+import org.pablo.mygas.data.remote.GasolinerasRepository
+import org.pablo.mygas.data.remote.MunicipioItem
 import org.pablo.mygas.utils.NetworkError
 import org.pablo.mygas.utils.Result
 

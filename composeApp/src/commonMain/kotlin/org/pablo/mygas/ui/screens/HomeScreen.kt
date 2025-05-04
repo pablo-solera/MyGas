@@ -16,12 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.lifecycle.viewmodel.compose.viewModel
 import mygas.composeapp.generated.resources.Res
 import mygas.composeapp.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
-import org.pablo.mygas.BottomNavigationBar
-import org.pablo.mygas.data.ListaEESSPrecio
+import org.koin.compose.viewmodel.koinViewModel
+import org.pablo.mygas.data.remote.ListaEESSPrecio
 import org.pablo.mygas.ui.CustomDropDownMenu
 import org.pablo.mygas.ui.ListaGasolineras
 import org.pablo.mygas.ui.NoGasStationsFound
@@ -32,7 +31,7 @@ import org.pablo.mygas.ui.viewmodels.HomeViewModel
 fun HomeScreen(
     onGasolineraClick: (ListaEESSPrecio) -> Unit,
     bottomBar: @Composable () -> Unit = {},
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -45,7 +44,6 @@ fun HomeScreen(
 
             )
         },
-        bottomBar = bottomBar,
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
 
     ) { padding ->

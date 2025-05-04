@@ -1,4 +1,4 @@
-package org.pablo.mygas.data
+package org.pablo.mygas.data.remote
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

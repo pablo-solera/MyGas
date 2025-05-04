@@ -1,8 +1,7 @@
 package org.pablo.mygas.domain
 
-import org.pablo.mygas.data.GasolinerasRepository
-import org.pablo.mygas.data.GasolinerasResponse
-import org.pablo.mygas.data.ListaEESSPrecio
+import org.pablo.mygas.data.remote.GasolinerasRepository
+import org.pablo.mygas.data.remote.responses.GasolinerasResponse
 import org.pablo.mygas.utils.NetworkError
 import org.pablo.mygas.utils.Result
 

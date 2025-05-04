@@ -1,5 +1,7 @@
-package org.pablo.mygas.data
+package org.pablo.mygas.data.remote
 
+import org.pablo.mygas.data.remote.responses.ComunidadAutonomaResponse
+import org.pablo.mygas.data.remote.responses.GasolinerasResponse
 import org.pablo.mygas.utils.NetworkError
 import org.pablo.mygas.utils.Result
 
@@ -12,7 +14,7 @@ class GasolinerasRepository(
     }
 
 
-    suspend fun getComunidadesAutonomas(): Result<List<ComunidadAutonoma>, NetworkError> {
+    suspend fun getComunidadesAutonomas(): Result<List<ComunidadAutonomaResponse>, NetworkError> {
         return municipioService.getComunidadesAutonomas()
     }
 

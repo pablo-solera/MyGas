@@ -1,10 +1,10 @@
-package org.pablo.mygas.data
+package org.pablo.mygas.data.remote.responses
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ComunidadAutonoma(
+data class ComunidadAutonomaResponse(
 
     @SerialName("CCAA")
     val ccaa: String,
