@@ -10,7 +10,7 @@ object HomeGraph
 object FavoriteGraph
 
 @Serializable
-object ProfileGraph
+object SettingsGraph
 
 @Serializable
 data class GasStationDetail(
@@ -27,3 +27,6 @@ object Home
 
 @Serializable
 object Favorite
+
+@Serializable
+object Settings

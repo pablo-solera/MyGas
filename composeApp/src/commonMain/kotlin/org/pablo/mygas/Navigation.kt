@@ -27,6 +27,7 @@ import org.pablo.mygas.domain.GetAllMunicipiosByProvinciaUseCase
 import org.pablo.mygas.ui.screens.GasStationDetailScreen
 import org.pablo.mygas.ui.screens.GasolineraFavoriteScreen
 import org.pablo.mygas.ui.screens.HomeScreen
+import org.pablo.mygas.ui.screens.SettingsScreen
 import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
 import org.pablo.mygas.ui.viewmodels.GasolineraFavoriteViewModel
 import org.pablo.mygas.ui.viewmodels.HomeViewModel
@@ -121,10 +122,18 @@ fun Navigation() {
         }
     }
 
+    fun NavGraphBuilder.settingsGraph() {
+        navigation<SettingsGraph>(startDestination = Settings) {
+            composable<Settings> {
+                SettingsScreen()
+            }
+        }
+    }
+
     Scaffold(
         bottomBar = { BottomNavigationBar(navController = navController) }
-    ) {
-        innerPadding ->
+    ) { innerPadding ->
+
         NavHost(
             navController = navController,
             startDestination = HomeGraph,
@@ -132,64 +141,7 @@ fun Navigation() {
         ) {
             homeGraph()
             favoriteGraph()
+            settingsGraph()
         }
     }
-
-    /*NavHost(navController = navController, startDestination = HomeGraph) {
-        homeGraph()
-        favoriteGraph()
-
-
-    }*/
-    /*Scaffold(
-        bottomBar = { BottomNavigationBar(navController = navController) }
-    ) { innerPadding ->
-        NavHost(navController, startDestination = BottomNavItem.Home.route, Modifier.padding(innerPadding)) {
-            composable(BottomNavItem.Home.route) { HomeScreen(onGasolineraClick = { gasolinera ->
-                navController.navigate("detail/${gasolinera.Dirección}/${gasolinera.Latitud}/${gasolinera.longitud}/${gasolinera.precioGasoleoA}/${gasolinera.precioGasolina95E5}/${gasolinera.rotulo}")
-            },viewModel) }
-            composable(BottomNavItem.Favorite.route) { GasolineraFavoriteScreen(favoriteViewModel) }
-            composable(route = "detail/{direccion}/{latitud}/{longitud}/{precioGasoleo}/{precioGasolina}/{rotulo}",
-                arguments = listOf(
-                    navArgument("direccion") { type = NavType.StringType },
-                    navArgument("latitud") { type = NavType.StringType },
-                    navArgument("longitud") { type = NavType.StringType },
-                    navArgument("precioGasoleo") { type = NavType.StringType },
-                    navArgument("precioGasolina") { type = NavType.StringType },
-                    navArgument("rotulo") { type = NavType.StringType }
-                )
-            ) { backstackEntry ->
-                val prueba = backstackEntry.toRoute<BottomNavItem.Home>()
-                val direccion = backstackEntry.arguments?.getString("direccion")
-                val latitud = backstackEntry.arguments?.getString("latitud")
-                val longitud = backstackEntry.arguments?.getString("longitud")
-                val precioGasoleo = backstackEntry.arguments?.getString("precioGasoleo")
-                val precioGasolina = backstackEntry.arguments?.getString("precioGasolina")
-                val rotulo = backstackEntry.arguments?.getString("rotulo")
-                GasolineraDetailScreen(
-                    gasolinera = ListaEESSPrecio(
-                        cp = "",
-                        Dirección = direccion ?: "",
-                        Horario = "",
-                        IDCCAA = "",
-                        IDEESS = "",
-                        IDMunicipio = "",
-                        IDProvincia = "",
-                        Latitud = latitud ?: "",
-                        Localidad = "",
-                        longitud = longitud ?: "",
-                        Margen = "",
-                        Municipio = "",
-                        precioGasoleoA = precioGasoleo ?: "",
-                        precioGasolina95E5 = precioGasolina ?: "",
-                        Provincia = "",
-                        Remisión = "",
-                        rotulo = rotulo ?: ""
-                    ),
-                    onBack = { navController.navigateUp() },
-                    gasolineraDetailViewModel = detailViewModel
-                )
-            }
-        }
-    }*/
 }

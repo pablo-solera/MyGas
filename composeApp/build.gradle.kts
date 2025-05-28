@@ -61,6 +61,7 @@ kotlin {
             implementation(libs.ktor.serialization.json)
             implementation(libs.navigation.compose)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.androidx.material3)
 
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
@@ -108,7 +109,6 @@ android {
 
 dependencies {
     //implementation(project(":composeApp"))
-    //implementation(libs.androidx.room.common)
     debugImplementation(compose.uiTooling)
     setOf(
         "kspAndroid", "kspIosX64", "kspIosArm64", "kspIosSimulatorArm64"
