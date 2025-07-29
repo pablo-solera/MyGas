@@ -30,7 +30,6 @@ import org.pablo.mygas.ui.viewmodels.HomeViewModel
 @Composable
 fun HomeScreen(
     onGasolineraClick: (ListaEESSPrecio) -> Unit,
-    bottomBar: @Composable () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -85,10 +84,6 @@ fun HomeScreen(
                     }
                 }
             }
-
-
         }
     }
-
-
 }

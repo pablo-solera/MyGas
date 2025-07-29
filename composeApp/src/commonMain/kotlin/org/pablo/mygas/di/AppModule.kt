@@ -1,13 +1,13 @@
 package org.pablo.mygas.di
 
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.context.startKoin
-import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -40,6 +40,9 @@ val dataModule = module {
             }
             install(ContentNegotiation) {
                 json(Json { ignoreUnknownKeys = true })
+            }
+            install(HttpTimeout) {
+                requestTimeoutMillis = 10_000
             }
         }
     }

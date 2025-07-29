@@ -17,7 +17,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -28,12 +28,12 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     jvm("desktop")
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -61,7 +61,6 @@ kotlin {
             implementation(libs.ktor.serialization.json)
             implementation(libs.navigation.compose)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.androidx.material3)
 
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
@@ -70,6 +69,9 @@ kotlin {
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
 
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -100,34 +102,34 @@ android {
             isMinifyEnabled = true
             signingConfig = signingConfigs.getByName("debug")
         }
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
+        }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+
+    dependencies {
+        //implementation(project(":composeApp"))
+        debugImplementation(compose.uiTooling)
+        setOf(
+            "kspAndroid", "kspIosX64", "kspIosArm64", "kspIosSimulatorArm64"
+        ).forEach {
+            add(it, libs.room.compiler)
+        }
     }
-}
-
-dependencies {
-    //implementation(project(":composeApp"))
-    debugImplementation(compose.uiTooling)
-    setOf(
-        "kspAndroid", "kspIosX64", "kspIosArm64", "kspIosSimulatorArm64"
-    ).forEach {
-        add(it, libs.room.compiler)
+    room {
+        schemaDirectory("$projectDir/schemas")
     }
-}
-room {
-    schemaDirectory("$projectDir/schemas")
-}
 
-compose.desktop {
-    application {
-        mainClass = "org.pablo.mygas.MainKt"
+    compose.desktop {
+        application {
+            mainClass = "org.pablo.mygas.MainKt"
 
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.pablo.mygas"
-            packageVersion = "1.0.0"
+            nativeDistributions {
+                targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+                packageName = "org.pablo.mygas"
+                packageVersion = "1.0.0"
+            }
         }
     }
 }

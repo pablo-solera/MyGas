@@ -3,27 +3,15 @@ package org.pablo.mygas
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
-import org.pablo.mygas.data.remote.GasolinerasRepository
+import org.koin.compose.viewmodel.koinViewModel
 import org.pablo.mygas.data.remote.ListaEESSPrecio
-import org.pablo.mygas.data.remote.MunicipioService
-import org.pablo.mygas.domain.GetAllComunidadesAutonomasUseCase
-import org.pablo.mygas.domain.GetAllGasolinerasByMunicipioUseCase
-import org.pablo.mygas.domain.GetAllMunicipiosByProvinciaUseCase
 import org.pablo.mygas.ui.screens.GasStationDetailScreen
 import org.pablo.mygas.ui.screens.GasolineraFavoriteScreen
 import org.pablo.mygas.ui.screens.HomeScreen
@@ -35,33 +23,10 @@ import org.pablo.mygas.ui.viewmodels.HomeViewModel
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    val client = remember {
-        HttpClient {
-            install(Logging) {
-                level = LogLevel.ALL
-            }
-            install(ContentNegotiation) {
-                json(Json { ignoreUnknownKeys = true })
-            }
-        }
-    }
 
-    val viewModel = viewModel {
-        HomeViewModel(
-            GetAllGasolinerasByMunicipioUseCase(GasolinerasRepository(MunicipioService(client))),
-            GetAllMunicipiosByProvinciaUseCase(GasolinerasRepository(MunicipioService(client)))
-        )
-    }
-    val detailViewModel =
-        viewModel { GasolineraDetailViewModel(GasolinerasRepository(MunicipioService(client))) }
-
-    val favoriteViewModel = viewModel {
-        GasolineraFavoriteViewModel(
-            GetAllComunidadesAutonomasUseCase(GasolinerasRepository(MunicipioService(client))),
-            GetAllMunicipiosByProvinciaUseCase(GasolinerasRepository(MunicipioService(client))),
-            GetAllGasolinerasByMunicipioUseCase(GasolinerasRepository(MunicipioService(client)))
-        )
-    }
+    val homeViewModel = koinViewModel<HomeViewModel>()
+    val detailViewModel = koinViewModel<GasolineraDetailViewModel>()
+    val favoriteViewModel = koinViewModel<GasolineraFavoriteViewModel>()
 
     fun NavGraphBuilder.homeGraph() {
         navigation<HomeGraph>(startDestination = Home) {
@@ -79,10 +44,7 @@ fun Navigation() {
                             )
                         )
                     },
-                    viewModel = viewModel,
-                    bottomBar = {
-                        BottomNavigationBar(navController = navController)
-                    }
+                    viewModel = homeViewModel,
                 )
             }
             composable<GasStationDetail> { backStackEntry ->
