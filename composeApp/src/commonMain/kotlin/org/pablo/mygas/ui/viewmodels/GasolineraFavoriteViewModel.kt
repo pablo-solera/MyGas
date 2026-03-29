@@ -2,80 +2,70 @@ package org.pablo.mygas.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.pablo.mygas.data.remote.responses.ComunidadAutonomaResponse
-import org.pablo.mygas.data.remote.ListaEESSPrecio
-import org.pablo.mygas.data.remote.MunicipioItem
-import org.pablo.mygas.domain.GetAllComunidadesAutonomasUseCase
-import org.pablo.mygas.domain.GetAllGasolinerasByMunicipioUseCase
-import org.pablo.mygas.domain.GetAllMunicipiosByProvinciaUseCase
-import org.pablo.mygas.utils.NetworkError
-import org.pablo.mygas.utils.Provincia
-import org.pablo.mygas.utils.onError
-import org.pablo.mygas.utils.onSuccess
+import org.pablo.mygas.data.local.database.GasStationDao
+import org.pablo.mygas.data.local.database.RoomGasStationAdapter
+import org.pablo.mygas.data.remote.adapters.PrecioilGasStationAdapter
+import org.pablo.mygas.data.toDomain
+import org.pablo.mygas.domain.models.GasStation
+import org.pablo.mygas.domain.repositories.GasStationRepository
 
 data class GasolineraFavoriteState(
-    val isChecked: Boolean = false,
-    val ccaas: List<ComunidadAutonomaResponse>? = null,
-    val municipios: List<MunicipioItem>? = null,
-    val isLoading: Boolean = false,
-    val errorMessage: NetworkError? = null,
-    val gasolineras: List<ListaEESSPrecio>? = null,
+    val gasStationIds: List<Int> = emptyList(),
+    val gasStations: List<GasStation> = emptyList(), // Lista con la información completa
+    val isLoading: Boolean = false
 )
 
 class GasolineraFavoriteViewModel(
-    val getAllComunidadesAutonomasUseCase: GetAllComunidadesAutonomasUseCase,
-    val getAllMunicipiosByProvinciaUseCase: GetAllMunicipiosByProvinciaUseCase,
-    val getAllGasolinerasByMunicipioUseCase: GetAllGasolinerasByMunicipioUseCase
+    private val roomAdapter: RoomGasStationAdapter,
+    private val precioilGasStationAdapter: PrecioilGasStationAdapter
+
+
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(GasolineraFavoriteState())
     val state: StateFlow<GasolineraFavoriteState> = _state.asStateFlow()
 
     init {
+        // Iniciamos la observación automáticamente al crear el ViewModel
+        observeFavoriteIds()
+    }
+
+    fun observeFavoriteIds() {
         viewModelScope.launch {
-            _state.update { currentState ->
-                currentState.copy(isLoading = true)
+            roomAdapter.observeFavoriteIds().collect { ids ->
+                _state.update { it.copy(gasStationIds = ids, isLoading = true) }
+
+                if (ids.isEmpty()) {
+                    _state.update { it.copy(gasStations = emptyList(), isLoading = false) }
+                    return@collect
+                }
+
+                // Lanzamos todas las peticiones en paralelo
+                try {
+                    val deferredStations = ids.map { id ->
+                        async {
+                            precioilGasStationAdapter.getById(id).toDomain()
+                        }
+                    }
+
+                    val stations = deferredStations.awaitAll()
+
+                    _state.update {
+                        it.copy(gasStations = stations, isLoading = false)
+                    }
+                } catch (e: Exception) {
+                    // Manejar error (ej. sin conexión)
+                    _state.update { it.copy(isLoading = false) }
+                }
             }
-            getAllGasolinerasByMunicipioUseCase(Provincia.ALCALA_DE_HENARES.id)
-                .onSuccess { response ->
-                    _state.update { currentState ->
-                        currentState.copy(
-                            gasolineras = response.ListaEESSPrecio,
-                            isLoading = false
-                        )
-                    }
-                }.onError {
-                    // Handle error
-                    _state.update { currentState ->
-                        currentState.copy(errorMessage = it)
-                    }
-                    println("Error garrafal: $it")
-                }
         }
     }
 
-    fun toggleChecked(checked: Boolean) {
-        _state.update { currentState ->
-            currentState.copy(isChecked = checked)
-        }
-    }
-
-    fun getAllComunidadesAutonomas() {
-        viewModelScope.launch {
-            getAllComunidadesAutonomasUseCase()
-                .onSuccess { comunidades ->
-                    _state.update { currentState ->
-                        currentState.copy(ccaas = comunidades)
-                    }
-                }.onError {
-                    // Handle error
-                    println("Error garrafal: $it")
-                }
-        }
-    }
 }

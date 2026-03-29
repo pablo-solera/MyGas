@@ -9,11 +9,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.pablo.mygas.data.remote.ListaEESSPrecio
 import org.pablo.mygas.data.remote.MunicipioItem
-import org.pablo.mygas.domain.GetAllGasolinerasByMunicipioUseCase
-import org.pablo.mygas.domain.GetAllMunicipiosByProvinciaUseCase
-import org.pablo.mygas.utils.Provincia
-import org.pablo.mygas.utils.onError
-import org.pablo.mygas.utils.onSuccess
+import org.pablo.mygas.domain.usecases.GetAllGasolinerasByMunicipioUseCase
+import org.pablo.mygas.domain.usecases.GetAllMunicipiosByProvinciaUseCase
+import org.pablo.mygas.domain.usecases.GetGasolineraByIdUseCase
+import org.pablo.mygas.core.utils.Provincia
+import org.pablo.mygas.core.utils.onError
+import org.pablo.mygas.core.utils.onSuccess
 
 data class HomeState(
     val municipio: String = "",
@@ -24,7 +25,8 @@ data class HomeState(
 
 class HomeViewModel(
     val getAllGasolinerasByMunicipioUseCase: GetAllGasolinerasByMunicipioUseCase,
-    val getAllMunicipiosByProvinciaUseCase: GetAllMunicipiosByProvinciaUseCase
+    val getAllMunicipiosByProvinciaUseCase: GetAllMunicipiosByProvinciaUseCase,
+    val getGasolineraByIdUseCase: GetGasolineraByIdUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())

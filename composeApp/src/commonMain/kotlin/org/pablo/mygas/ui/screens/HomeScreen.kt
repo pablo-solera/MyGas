@@ -21,9 +21,9 @@ import mygas.composeapp.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.pablo.mygas.data.remote.ListaEESSPrecio
-import org.pablo.mygas.ui.CustomDropDownMenu
-import org.pablo.mygas.ui.ListaGasolineras
-import org.pablo.mygas.ui.NoGasStationsFound
+import org.pablo.mygas.ui.components.CustomDropDownMenu
+import org.pablo.mygas.ui.components.ListaGasolineras
+import org.pablo.mygas.ui.components.NoGasStationsFound
 import org.pablo.mygas.ui.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

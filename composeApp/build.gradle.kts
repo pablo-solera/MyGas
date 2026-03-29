@@ -37,8 +37,10 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -52,6 +54,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
             implementation(libs.ktor.client.core)
@@ -62,10 +65,14 @@ kotlin {
             implementation(libs.navigation.compose)
             implementation(libs.kotlinx.serialization.json)
 
+            implementation(libs.material.icons.extended)
+
+            // Koin
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
+            // Room
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
 
@@ -76,6 +83,8 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
+
+            implementation(libs.ktor.client.okhttp)
         }
     }
 }
@@ -101,35 +110,37 @@ android {
             isDebuggable = false
             isMinifyEnabled = true
             signingConfig = signingConfigs.getByName("debug")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro" // Le decimos que use nuestro archivo de reglas
+            )
         }
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_11
             targetCompatibility = JavaVersion.VERSION_11
         }
     }
+}
 
-    dependencies {
-        //implementation(project(":composeApp"))
-        debugImplementation(compose.uiTooling)
-        setOf(
-            "kspAndroid", "kspIosX64", "kspIosArm64", "kspIosSimulatorArm64"
-        ).forEach {
-            add(it, libs.room.compiler)
-        }
+dependencies {
+    debugImplementation(compose.uiTooling)
+    setOf(
+        "kspAndroid", "kspDesktop", "kspIosX64", "kspIosArm64", "kspIosSimulatorArm64"
+    ).forEach {
+        add(it, libs.room.compiler)
     }
-    room {
-        schemaDirectory("$projectDir/schemas")
-    }
+}
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+compose.desktop {
+    application {
+        mainClass = "org.pablo.mygas.MainKt"
 
-    compose.desktop {
-        application {
-            mainClass = "org.pablo.mygas.MainKt"
-
-            nativeDistributions {
-                targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-                packageName = "org.pablo.mygas"
-                packageVersion = "1.0.0"
-            }
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "org.pablo.mygas"
+            packageVersion = "1.0.0"
         }
     }
 }
