@@ -18,7 +18,7 @@ import org.pablo.mygas.domain.repositories.GasStationRepository
 
 data class GasolineraFavoriteState(
     val gasStationIds: List<Int> = emptyList(),
-    val gasStations: List<GasStation> = emptyList(), // Lista con la información completa
+    val gasStations: List<GasStation>? = emptyList(), // Lista con la información completa
     val isLoading: Boolean = false
 )
 

@@ -3,7 +3,7 @@ package org.pablo.mygas.data.remote.repository
 import org.pablo.mygas.data.remote.MunicipioItem
 import org.pablo.mygas.data.remote.MunicipioService
 import org.pablo.mygas.data.remote.responses.ComunidadAutonomaResponse
-import org.pablo.mygas.data.remote.responses.GasStationResponse
+import org.pablo.mygas.data.remote.responses.PrecioilGasStationResponse
 import org.pablo.mygas.data.remote.responses.GasolinerasResponse
 import org.pablo.mygas.core.utils.NetworkError
 import org.pablo.mygas.core.utils.Result
@@ -25,7 +25,7 @@ class GasolinerasRepository(
         return municipioService.getMunicipiosByProvincia(provinciaId)
     }
 
-    suspend fun getGasolineraById(id: Int): Result<GasStationResponse, NetworkError> {
+    suspend fun getGasolineraById(id: Int): Result<PrecioilGasStationResponse, NetworkError> {
     return municipioService.getGasolineraById(id)
     }
 }

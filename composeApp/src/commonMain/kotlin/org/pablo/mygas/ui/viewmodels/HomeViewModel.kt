@@ -7,20 +7,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.pablo.mygas.data.remote.ListaEESSPrecio
-import org.pablo.mygas.data.remote.MunicipioItem
-import org.pablo.mygas.domain.usecases.GetAllGasolinerasByMunicipioUseCase
-import org.pablo.mygas.domain.usecases.GetAllMunicipiosByProvinciaUseCase
-import org.pablo.mygas.domain.usecases.GetGasolineraByIdUseCase
 import org.pablo.mygas.core.utils.Provincia
 import org.pablo.mygas.core.utils.onError
 import org.pablo.mygas.core.utils.onSuccess
+import org.pablo.mygas.data.remote.MunicipioItem
+import org.pablo.mygas.data.toDomain
+import org.pablo.mygas.domain.models.GasStation
+import org.pablo.mygas.domain.usecases.GetAllGasolinerasByMunicipioUseCase
+import org.pablo.mygas.domain.usecases.GetAllMunicipiosByProvinciaUseCase
+import org.pablo.mygas.domain.usecases.GetGasolineraByIdUseCase
 
 data class HomeState(
     val municipio: String = "",
     val isLoading: Boolean = false,
     val municipios: List<MunicipioItem>? = null,
-    val gasolineras: List<ListaEESSPrecio>? = null,
+    val gasStations: List<GasStation>? = null,
 )
 
 class HomeViewModel(
@@ -61,8 +62,8 @@ class HomeViewModel(
                 .onSuccess { response ->
                     _uiState.update { currentState ->
                         currentState.copy(
-                            gasolineras = response.ListaEESSPrecio.sortedBy {
-                                it.precioGasolina95E5
+                            gasStations = response.ListaEESSPrecio.map { it.toDomain() }.sortedBy {
+                                it.fuels.gasoline95.price
                             },
                             municipio = currentState.municipios?.find { it.idMunicipio == municipioId.toString() }?.municipio
                                 ?: "",

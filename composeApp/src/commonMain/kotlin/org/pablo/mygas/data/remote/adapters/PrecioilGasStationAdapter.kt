@@ -5,13 +5,13 @@ import org.pablo.mygas.core.utils.onError
 import org.pablo.mygas.core.utils.onSuccess
 import org.pablo.mygas.data.remote.MunicipioService
 import org.pablo.mygas.data.remote.datasources.PrecioilGasStationDataSource
-import org.pablo.mygas.data.remote.responses.GasStationResponse
+import org.pablo.mygas.data.remote.responses.PrecioilGasStationResponse
 
 class PrecioilGasStationAdapter(
     private val api: MunicipioService
 ) : PrecioilGasStationDataSource {
-    override suspend fun getById(gasStationId: Int): GasStationResponse {
-        lateinit var result: GasStationResponse
+    override suspend fun getById(gasStationId: Int): PrecioilGasStationResponse {
+        lateinit var result: PrecioilGasStationResponse
 
         api.getGasolineraById(gasStationId)
             .onSuccess { response ->

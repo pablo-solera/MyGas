@@ -1,13 +1,14 @@
 package org.pablo.mygas.data
 
 import org.pablo.mygas.data.local.database.models.GasStationEntity
-import org.pablo.mygas.data.remote.responses.GasStationResponse
+import org.pablo.mygas.data.remote.GovernmentGasStationResponse
+import org.pablo.mygas.data.remote.responses.PrecioilGasStationResponse
 import org.pablo.mygas.domain.models.FuelPrice
 import org.pablo.mygas.domain.models.FuelPrices
 import org.pablo.mygas.domain.models.GasStation
 import org.pablo.mygas.domain.models.GeoLocation
 
-fun GasStationResponse.toDomain(): GasStation {
+fun PrecioilGasStationResponse.toDomain(): GasStation {
     return GasStation(
         id = idEstacion,
         name = nombreEstacion,
@@ -50,6 +51,54 @@ fun GasStationResponse.toDomain(): GasStation {
             hvo = FuelPrice(
                 averagePrice = hvoMedia.toSafeDouble(),
                 price = hvo.toSafeDouble()
+            )
+        ),
+    )
+}
+
+fun GovernmentGasStationResponse.toDomain(): GasStation {
+    return GasStation(
+        id = IDEESS.toInt(),
+        name = rotulo,
+        brand = rotulo,
+        address = Dirección,
+        postalCode = cp,
+        town = Municipio,
+        province = Provincia,
+        location = GeoLocation(
+            latitude = Latitud.toSafeDouble() ?: 0.0,
+            longitude = longitud.toSafeDouble() ?: 0.0
+        ),
+        openingHours = Horario,
+        lastUpdate = "",
+        fuels = FuelPrices(
+            gasoline95 = FuelPrice(
+                price = precioGasolina95E5.toSafeDouble(),
+                averagePrice = precioGasolina95E5.toSafeDouble()
+            ),
+            gasoline98 = FuelPrice(
+                price = 0.0,
+                averagePrice = 0.0
+            ),
+            diesel = FuelPrice(
+                price = precioGasoleoA.toSafeDouble(),
+                averagePrice = precioGasoleoA.toSafeDouble()
+            ),
+            dieselPremium = FuelPrice(
+                price = 0.0,
+                averagePrice = 0.0
+            ),
+            biodiesel = FuelPrice(
+                price = 0.0,
+                averagePrice = 0.0
+            ),
+            glp = FuelPrice(
+                price = 0.0,
+                averagePrice = 0.0
+            ),
+            hvo = FuelPrice(
+                price = 0.0,
+                averagePrice = 0.0
             )
         ),
     )

@@ -16,19 +16,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
-import org.pablo.mygas.data.remote.ListaEESSPrecio
 import org.pablo.mygas.core.utils.GasStationImage
+import org.pablo.mygas.domain.models.GasStation
 
 
 @Composable
-fun GasolineraItem(
-    gasolinera: ListaEESSPrecio,
-    onClick: (ListaEESSPrecio) -> Unit
+fun GasStationItem(
+    gasStation: GasStation,
+    onClick: (GasStation) -> Unit
 ) {
     Row(
-        modifier = Modifier.clickable { onClick(gasolinera) }
+        modifier = Modifier.clickable { onClick(gasStation) }
             .padding(12.dp, 8.dp)
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -38,7 +39,8 @@ fun GasolineraItem(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Image(
-                painterResource(GasStationImage().getImage(gasolinera.rotulo.split(" ").first())), contentDescription = null,
+                painterResource(GasStationImage().getImage(gasStation.brand.split(" ").first())),
+                contentDescription = null,
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(16.dp))
                     .size(50.dp)
@@ -46,18 +48,20 @@ fun GasolineraItem(
             )
             Column {
                 Text(
-                    text = gasolinera.rotulo,
+                    text = gasStation.brand,
+                    overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyLarge,
                     maxLines = 1,
-
-                    )
+                )
             }
         }
-        Text(
-            text = "${gasolinera.precioGasolina95E5} €/l",
-            style = MaterialTheme.typography.titleLarge,
-            maxLines = 1,
-            modifier = Modifier.padding(8.dp)
-        )
+        gasStation.fuels.gasoline95.price?.let { price ->
+            Text(
+                text = "$price €/l",
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 1,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
     }
 }

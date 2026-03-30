@@ -1,13 +1,10 @@
 package org.pablo.mygas.ui.screens
 
+import GasStationPrices
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,42 +17,36 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.pablo.mygas.data.local.database.models.GasStationEntity
-import org.pablo.mygas.data.remote.ListaEESSPrecio
-import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
 import org.pablo.mygas.core.utils.GasStationImage
 import org.pablo.mygas.core.utils.MapOpener
+import org.pablo.mygas.ui.components.GasStationInfo
+import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GasStationDetailScreen(
-    gasolinera: ListaEESSPrecio,
+    gasStationId: Int,
     onBack: () -> Unit,
     viewModel: GasolineraDetailViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Dispatchers.IO) {
-        viewModel.checkFavorite(gasolinera.IDEESS.toInt())
+        viewModel.checkFavorite(gasStationId)
+        viewModel.getGasStationById(gasStationId)
     }
 
     Scaffold(
@@ -74,9 +65,9 @@ fun GasStationDetailScreen(
                     IconButton(onClick = {
                         state.isFavorite?.let { isFavorite ->
                             if (isFavorite) {
-                                viewModel.removeGasStationId(gasolinera.IDEESS.toInt())
-                            }else{
-                                viewModel.insertGasStationId(gasolinera.IDEESS.toInt())
+                                viewModel.removeGasStationId(gasStationId)
+                            } else {
+                                viewModel.insertGasStationId(gasStationId)
                             }
 
                         }
@@ -99,7 +90,13 @@ fun GasStationDetailScreen(
             FloatingActionButton(
                 onClick = {
                     try {
-                        MapOpener().openMapActivity(gasolinera.Latitud, gasolinera.longitud)
+                        state.gasStation?.let { gasStation ->
+                            MapOpener().openMapActivity(
+                                gasStation.location.latitude.toString(),
+                                gasStation.location.longitude.toString()
+                            )
+                        }
+                        //MapOpener().openMapActivity(gasolinera.Latitud, gasolinera.longitud)
                     } catch (e: Exception) {
                         println("Error $e")
                     }
@@ -118,77 +115,25 @@ fun GasStationDetailScreen(
                 .padding(16.dp, 8.dp)
 
         ) {
-            Image(
-                painterResource(GasStationImage().getImage(gasolinera.rotulo.split(" ").first())),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(shape = RoundedCornerShape(16.dp))
-                    .size(75.dp)
-                    .aspectRatio(1f)
-            )
-            Spacer(modifier = Modifier.padding(16.dp))
-            GasStationInfo(gasolinera)
-            GasStationPrices(gasolinera)
-        }
-    }
-}
 
-@Composable
-fun GasStationInfo(
-    gasolinera: ListaEESSPrecio
-) {
-    Column {
-        Text(gasolinera.rotulo, style = MaterialTheme.typography.titleLarge)
-        Text(
-            gasolinera.Dirección,
-            style = MaterialTheme.typography.bodyMedium,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1
-        )
-        Spacer(Modifier.height(16.dp))
-        Text("Horario", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        Text(gasolinera.Horario, style = MaterialTheme.typography.bodyMedium)
-        Spacer(Modifier.height(16.dp))
-    }
-}
-
-@Composable
-fun GasStationPrices(
-    gasolinera: ListaEESSPrecio
-) {
-    Column {
-        Text("Precios", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Gasóleo A",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "${gasolinera.precioGasoleoA}€",
-                style = MaterialTheme.typography.titleLarge
-            )
+            state.gasStation?.let { gasStation ->
+                Image(
+                    painterResource(
+                        GasStationImage().getImage(
+                            gasStation.brand.split(" ").first()
+                        )
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(shape = RoundedCornerShape(16.dp))
+                        .size(75.dp)
+                        .aspectRatio(1f)
+                )
+                Spacer(modifier = Modifier.padding(16.dp))
+                GasStationInfo(gasStation)
+                GasStationPrices(gasStation)
+            }
         }
-        Spacer(Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Gasolina 95",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "${gasolinera.precioGasolina95E5}€",
-                style = MaterialTheme.typography.titleLarge
-            )
-        }
-
     }
 }
 

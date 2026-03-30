@@ -1,10 +1,9 @@
 package org.pablo.mygas.ui.screens
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -20,16 +19,17 @@ import mygas.composeapp.generated.resources.Res
 import mygas.composeapp.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.pablo.mygas.data.remote.ListaEESSPrecio
+import org.pablo.mygas.domain.models.GasStation
+import org.pablo.mygas.ui.components.CircularLoader
 import org.pablo.mygas.ui.components.CustomDropDownMenu
-import org.pablo.mygas.ui.components.ListaGasolineras
+import org.pablo.mygas.ui.components.GasStationList
 import org.pablo.mygas.ui.components.NoGasStationsFound
 import org.pablo.mygas.ui.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onGasolineraClick: (ListaEESSPrecio) -> Unit,
+    onGasStationClick: (GasStation) -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -48,12 +48,7 @@ fun HomeScreen(
     ) { padding ->
 
         if (state.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
+            CircularLoader()
         } else {
             Column(
                 modifier = Modifier
@@ -73,13 +68,13 @@ fun HomeScreen(
                         municipio = state.municipio
                     )
                 }
-                state.gasolineras?.let { gasolineras ->
-                    if (gasolineras.isEmpty()) {
+                state.gasStations?.let { gasStations ->
+                    if (gasStations.isEmpty()) {
                         NoGasStationsFound()
                     } else {
-                        ListaGasolineras(
-                            gasolineras = gasolineras,
-                            onClick = { onGasolineraClick(it) }
+                        GasStationList(
+                            gasStations = gasStations,
+                            onClick = { onGasStationClick(it) }
                         )
                     }
                 }

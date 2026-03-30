@@ -4,7 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ListaEESSPrecio(
+@SerialName("ListaEESSPrecio")
+data class GovernmentGasStationResponse(
    // val % BioEtanol: String,
    // val % Éster metílico: String,
 

@@ -6,7 +6,7 @@ import io.ktor.client.request.get
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
 import org.pablo.mygas.data.remote.responses.ComunidadAutonomaResponse
-import org.pablo.mygas.data.remote.responses.GasStationResponse
+import org.pablo.mygas.data.remote.responses.PrecioilGasStationResponse
 import org.pablo.mygas.data.remote.responses.GasolinerasResponse
 import org.pablo.mygas.core.utils.NetworkError
 import org.pablo.mygas.core.utils.Result
@@ -91,7 +91,7 @@ class MunicipioService(
         }
     }
 
-    suspend fun getGasolineraById(id: Int): Result<GasStationResponse, NetworkError> {
+    suspend fun getGasolineraById(id: Int): Result<PrecioilGasStationResponse, NetworkError> {
      val response = try {
             client.get("https://api.precioil.es/estaciones/detalles/$id")
         } catch (e: UnresolvedAddressException) {
@@ -103,7 +103,7 @@ class MunicipioService(
         }
         return when (response.status.value) {
             in 200..299 -> {
-                val responseBody = response.body<GasStationResponse>()
+                val responseBody = response.body<PrecioilGasStationResponse>()
                 Result.Success(responseBody)
             }
 

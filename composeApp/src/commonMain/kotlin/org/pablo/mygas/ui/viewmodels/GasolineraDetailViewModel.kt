@@ -7,13 +7,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.pablo.mygas.data.local.database.GasStationDao
 import org.pablo.mygas.data.local.database.RoomGasStationAdapter
-import org.pablo.mygas.data.local.database.models.GasStationEntity
 import org.pablo.mygas.data.remote.adapters.PrecioilGasStationAdapter
-import org.pablo.mygas.data.remote.repository.GasolinerasRepository
 import org.pablo.mygas.data.toDomain
-import org.pablo.mygas.data.toEntity
 import org.pablo.mygas.domain.models.GasStation
 
 
@@ -31,6 +27,16 @@ class GasolineraDetailViewModel(
     val state: StateFlow<GasolineraDetailState> = _state.asStateFlow()
 
 
+    fun getGasStationById(id: Int) {
+        viewModelScope.launch {
+            val gasStation = precioilGasStationAdapter.getById(id)
+            _state.update {
+                it.copy(
+                    gasStation = gasStation.toDomain()
+                )
+            }
+        }
+    }
 
     fun checkFavorite(id: Int) {
         viewModelScope.launch {
@@ -55,7 +61,6 @@ class GasolineraDetailViewModel(
             roomAdapter.removeFavorite(id)
         }
     }
-
 
 
 }

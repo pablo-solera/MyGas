@@ -14,14 +14,7 @@ object SettingsGraph
 
 @Serializable
 data class GasStationDetail(
-    val id: String,
-    val location: String,
-    val latitude: String,
-    val longitude: String,
-    val dieselPrice: String,
-    val gasolinePrice: String,
-    val rotulo: String,
-    val horario: String
+    val id: Int,
 )
 
 @Serializable
