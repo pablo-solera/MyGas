@@ -38,7 +38,14 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
 
+            // Google Maps
+            implementation("com.google.android.gms:play-services-maps:19.2.0")
+            implementation("com.google.maps.android:maps-compose:6.12.0")
+
+            // Ktor
             implementation(libs.ktor.client.okhttp)
+
+            // Koin
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
         }
@@ -65,6 +72,10 @@ kotlin {
             implementation(libs.navigation.compose)
             implementation(libs.kotlinx.serialization.json)
 
+            // kmp-maps
+            implementation("com.swmansion.kmpmaps:core:0.9.1")
+
+            // Icons
             implementation(libs.material.icons.extended)
 
             // Koin
@@ -84,6 +95,10 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
 
+            // KCEF
+            implementation("dev.datlag:kcef:2024.04.20.4")
+
+            // Kton
             implementation(libs.ktor.client.okhttp)
         }
     }
