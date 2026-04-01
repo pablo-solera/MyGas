@@ -39,8 +39,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
 
             // Google Maps
-            implementation("com.google.android.gms:play-services-maps:19.2.0")
-            implementation("com.google.maps.android:maps-compose:6.12.0")
+            implementation("com.google.maps.android:maps-compose:8.2.2")
 
             // Ktor
             implementation(libs.ktor.client.okhttp)
