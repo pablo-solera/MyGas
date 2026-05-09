@@ -159,7 +159,7 @@ fun GasStation.toEntity(): GasStationEntity {
     )
 }
 
-private fun String?.toSafeDouble(): Double? {
+fun String?.toSafeDouble(): Double? {
     return this
         ?.replace(",", ".")
         ?.trim()
