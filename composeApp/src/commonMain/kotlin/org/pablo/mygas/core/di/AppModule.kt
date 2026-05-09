@@ -27,6 +27,7 @@ import org.pablo.mygas.domain.usecases.GetGasolineraByIdUseCase
 import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
 import org.pablo.mygas.ui.viewmodels.GasolineraFavoriteViewModel
 import org.pablo.mygas.ui.viewmodels.HomeViewModel
+import org.pablo.mygas.ui.viewmodels.MapViewModel
 
 val appModule = module {
     // Api key
@@ -63,6 +64,8 @@ val viewModelsModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::GasolineraFavoriteViewModel)
     viewModelOf(::GasolineraDetailViewModel)
+    viewModelOf(::MapViewModel)
+
 }
 
 val useCasesModule = module {
