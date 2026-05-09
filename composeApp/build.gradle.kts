@@ -64,7 +64,9 @@ kotlin {
             implementation(libs.androidx.activity.compose)
 
             // Google Maps
-            implementation("com.google.maps.android:maps-compose:8.2.2")
+            implementation("com.google.maps.android:maps-compose:8.3.0")
+            implementation("com.google.maps.android:maps-compose-utils:8.3.0")
+            //implementation("com.google.android.gms:play-services-maps:18.2.0")
 
             // Ktor
             implementation(libs.ktor.client.okhttp)
@@ -122,7 +124,7 @@ kotlin {
             // KCEF
             implementation("dev.datlag:kcef:2024.04.20.4")
 
-            // Kton
+            // Ktor
             implementation(libs.ktor.client.okhttp)
         }
     }
