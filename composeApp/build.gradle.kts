@@ -1,5 +1,7 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -9,7 +11,30 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    alias(libs.plugins.buildkonfig)
 }
+
+val secretsProperties = Properties().apply {
+    val secretsFile = rootProject.file("secrets.properties")
+    if (secretsFile.exists()) {
+        secretsFile.inputStream().use(::load)
+    }
+}
+
+fun mapApiKeyFor(platform: String): String {
+    val platformKey = "MAPS_API_KEY_${platform.uppercase()}"
+    return providers.gradleProperty(platformKey).orNull
+        ?: providers.environmentVariable(platformKey).orNull
+        ?: secretsProperties.getProperty(platformKey)
+        ?: providers.gradleProperty("MAPS_API_KEY").orNull
+        ?: providers.environmentVariable("MAPS_API_KEY").orNull
+        ?: secretsProperties.getProperty("MAPS_API_KEY")
+        ?: error("$platformKey no encontrada. Añádela a secrets.properties, Gradle properties o variable de entorno.")
+}
+
+val androidMapsApiKey = mapApiKeyFor("android")
+val desktopMapsApiKey = mapApiKeyFor("desktop")
+val iosMapsApiKey = mapApiKeyFor("ios")
 
 kotlin {
     androidTarget {
@@ -113,6 +138,7 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        manifestPlaceholders["MAPS_API_KEY"] = androidMapsApiKey
     }
     packaging {
         resources {
@@ -132,6 +158,32 @@ android {
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_11
             targetCompatibility = JavaVersion.VERSION_11
+        }
+    }
+}
+
+buildkonfig {
+    packageName = "org.pablo.mygas"
+
+    defaultConfigs {
+        buildConfigField(STRING, "MAPS_API_KEY", "")
+    }
+
+    targetConfigs {
+        create("android") {
+            buildConfigField(STRING, "MAPS_API_KEY", androidMapsApiKey)
+        }
+        create("desktop") {
+            buildConfigField(STRING, "MAPS_API_KEY", desktopMapsApiKey)
+        }
+        create("iosX64") {
+            buildConfigField(STRING, "MAPS_API_KEY", iosMapsApiKey)
+        }
+        create("iosArm64") {
+            buildConfigField(STRING, "MAPS_API_KEY", iosMapsApiKey)
+        }
+        create("iosSimulatorArm64") {
+            buildConfigField(STRING, "MAPS_API_KEY", iosMapsApiKey)
         }
     }
 }
