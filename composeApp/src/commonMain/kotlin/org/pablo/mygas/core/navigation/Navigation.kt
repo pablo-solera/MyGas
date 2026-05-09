@@ -13,6 +13,7 @@ import androidx.navigation.toRoute
 import org.pablo.mygas.ui.screens.GasStationDetailScreen
 import org.pablo.mygas.ui.screens.GasolineraFavoriteScreen
 import org.pablo.mygas.ui.screens.HomeScreen
+import org.pablo.mygas.ui.screens.MapScreen
 import org.pablo.mygas.ui.screens.SettingsScreen
 
 @Composable
@@ -64,6 +65,13 @@ fun Navigation() {
             }
         }
     }
+    fun NavGraphBuilder.mapGraph() {
+        navigation<MapGraph>(startDestination = Map) {
+            composable<Map> {
+                MapScreen()
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = { BottomNavigationBar(navController = navController) }
@@ -76,6 +84,7 @@ fun Navigation() {
         ) {
             homeGraph()
             favoriteGraph()
+            mapGraph()
             settingsGraph()
         }
     }

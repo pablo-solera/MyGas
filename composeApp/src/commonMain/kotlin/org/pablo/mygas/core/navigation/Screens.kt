@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
 object HomeGraph
 
 @Serializable
+object MapGraph
+
+@Serializable
 object FavoriteGraph
 
 @Serializable
@@ -22,6 +25,9 @@ object Home
 
 @Serializable
 object Favorite
+
+@Serializable
+object Map
 
 @Serializable
 object Settings

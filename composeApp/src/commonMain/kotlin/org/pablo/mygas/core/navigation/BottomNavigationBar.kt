@@ -23,6 +23,7 @@ fun BottomNavigationBar(navController: NavController) {
             listOf(
                 BottomNavItem.Home,
                 BottomNavItem.Favorite,
+                BottomNavItem.Map,
                 BottomNavItem.Settings
             )
         }
