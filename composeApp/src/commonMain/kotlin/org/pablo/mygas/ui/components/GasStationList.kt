@@ -31,7 +31,8 @@ fun GasStationList(
                 favoriteFuel = favoriteFuel,
                 tankCapacityLiters = tankCapacityLiters,
             ) },
-            key = { index -> gasStations[index].id }
+            key = { index -> gasStations[index].id },
+            contentType = { "gas-station" }
         )
     }
 }

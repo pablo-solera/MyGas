@@ -7,62 +7,54 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.pablo.mygas.core.utils.onError
-import org.pablo.mygas.core.utils.onSuccess
+import kotlinx.coroutines.flow.collectLatest
+import org.pablo.mygas.core.state.SelectedMunicipalityStore
 import org.pablo.mygas.ui.state.Loadable
-import org.pablo.mygas.data.toSafeDouble
-import org.pablo.mygas.domain.models.FuelPrice
+import org.pablo.mygas.domain.models.FuelType
+import org.pablo.mygas.domain.models.priceFor
 import org.pablo.mygas.domain.models.map.MapCoordinate
 import org.pablo.mygas.domain.models.map.MapMarker
 import org.pablo.mygas.domain.models.map.MapState
-import org.pablo.mygas.domain.usecases.GetAllGasolinerasByMunicipioUseCase
 
 
 class MapViewModel(
-    private val getAllGasolinerasByMunicipioUseCase: GetAllGasolinerasByMunicipioUseCase
+    private val selectionStore: SelectedMunicipalityStore,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MapState())
     val uiState: StateFlow<MapState> = _uiState.asStateFlow()
 
-    private var lastMunicipioId: Int? = null
-
-    fun getGasolinerasByMunicipio(municipioId: Int) {
-        lastMunicipioId = municipioId
+    init {
         viewModelScope.launch {
-            _uiState.update { it.copy(markersState = Loadable.Loading) }
-            getAllGasolinerasByMunicipioUseCase(municipioId)
-                .onSuccess { response ->
-                    val markers = response.ListaEESSPrecio.mapNotNull {
-                        val latitude = it.Latitud.toSafeDouble()
-                        val longitude = it.longitud.toSafeDouble()
-                        if (latitude == null || longitude == null) return@mapNotNull null
-
-                        MapMarker(
-                            id = it.IDEESS,
-                            position = MapCoordinate(latitude, longitude),
-                            title = it.rotulo,
-                            brand = it.rotulo,
-                            fuelPrice = FuelPrice(
-                                it.precioGasolina95E5.toSafeDouble(),
-                                it.precioGasolina95E5.toSafeDouble()
-                            )
-                        )
-                    }
-                    _uiState.update { currentState ->
-                        currentState.copy(
-                            markers = markers,
-                            markersState = Loadable.Content(markers),
-                        )
-                    }
-
-                }.onError { error ->
-                    _uiState.update { it.copy(markersState = Loadable.Failed(error)) }
+            selectionStore.selection.collectLatest { selection ->
+                if (selection == null) return@collectLatest
+                val markers = selection.stations.mapNotNull { station ->
+                    val coordinate = station.location
+                    if (coordinate.latitude == 0.0 || coordinate.longitude == 0.0) return@mapNotNull null
+                    MapMarker(
+                        id = station.id.toString(),
+                        position = MapCoordinate(coordinate.latitude, coordinate.longitude),
+                        title = station.name,
+                        brand = station.brand,
+                        fuelPrice = station.fuels.priceFor(FuelType.GASOLINE_95),
+                    )
                 }
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        cameraPosition = currentState.cameraPosition.copy(
+                            coordinates = markers.firstOrNull()?.position
+                                ?: currentState.cameraPosition.coordinates,
+                        ),
+                        markers = markers,
+                        markersState = Loadable.Content(markers),
+                    )
+                }
+            }
         }
     }
 
     fun retry() {
-        lastMunicipioId?.let(::getGasolinerasByMunicipio)
+        val current = _uiState.value
+        _uiState.value = current.copy(markersState = Loadable.Content(current.markers))
     }
 }

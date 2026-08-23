@@ -1,6 +1,7 @@
 package org.pablo.mygas.ui.components
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -59,20 +60,23 @@ fun <T> CustomDropDownMenu(
                 onDismissRequest = { expanded = false },
 
                 ) {
-                itemList.forEach { option ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                itemText(option),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        },
-                        onClick = {
-                            expanded = false
-                            onValueChange(option)
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                    )
+                LazyColumn {
+                    items(count = itemList.size) { index ->
+                        val option = itemList[index]
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    itemText(option),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            },
+                            onClick = {
+                                expanded = false
+                                onValueChange(option)
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                    }
                 }
             }
         }

@@ -2,8 +2,10 @@ package org.pablo.mygas.core.utils
 
 import mygas.composeapp.generated.resources.Res
 import mygas.composeapp.generated.resources.alcampo
+import mygas.composeapp.generated.resources.atenoil
 import mygas.composeapp.generated.resources.ballenoil
 import mygas.composeapp.generated.resources.bp
+import mygas.composeapp.generated.resources.carrefour
 import mygas.composeapp.generated.resources.cepsa
 import mygas.composeapp.generated.resources.fastfuel
 import mygas.composeapp.generated.resources.galp
@@ -28,6 +30,8 @@ object GasStationImage {
             "bp" -> Res.drawable.bp
             "galp" -> Res.drawable.galp
             "alcampo" -> Res.drawable.alcampo
+            "atenoil" -> Res.drawable.atenoil
+            "carrefour" -> Res.drawable.carrefour
             "shell" -> Res.drawable.shell
             "petroprix" -> Res.drawable.petroprix
             "ballenoil" -> Res.drawable.ballenoil

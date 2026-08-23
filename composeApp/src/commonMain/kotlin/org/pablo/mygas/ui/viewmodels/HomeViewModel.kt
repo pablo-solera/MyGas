@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.pablo.mygas.core.utils.Provincia
 import org.pablo.mygas.core.utils.Result
+import org.pablo.mygas.core.state.SelectedMunicipalityStore
 import org.pablo.mygas.data.remote.MunicipioItem
 import org.pablo.mygas.data.toDomain
 import org.pablo.mygas.domain.models.GasStation
@@ -40,7 +41,8 @@ class HomeViewModel(
     val getAllGasolinerasByMunicipioUseCase: GetAllGasolinerasByMunicipioUseCase,
     val getAllMunicipiosByProvinciaUseCase: GetAllMunicipiosByProvinciaUseCase,
     val getGasolineraByIdUseCase: GetGasolineraByIdUseCase,
-    private val cpuDispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val cpuDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val selectionStore: SelectedMunicipalityStore = SelectedMunicipalityStore(),
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -59,6 +61,7 @@ class HomeViewModel(
 
         municipiosJob?.cancel()
         gasStationsJob?.cancel()
+        selectionStore.clear()
         val request = ++provinciaRequest
         ++gasStationsRequest
         municipiosJob = viewModelScope.launch {
@@ -144,6 +147,7 @@ class HomeViewModel(
                             isGasStationsLoading = false,
                         )
                     }
+                    selectionStore.updateStations(municipioId, stations)
                 }
 
                 is Result.Error -> {

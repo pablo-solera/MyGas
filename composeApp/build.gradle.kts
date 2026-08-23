@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.baselineProfile)
 }
 
 val secretsProperties = Properties().apply {
@@ -63,6 +64,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.profileinstaller)
 
             // Google Maps
             implementation("com.google.maps.android:maps-compose:8.3.0")
@@ -129,6 +131,11 @@ kotlin {
     }
 }
 
+composeCompiler {
+    metricsDestination.set(layout.buildDirectory.dir("compose_compiler"))
+    reportsDestination.set(layout.buildDirectory.dir("compose_compiler"))
+}
+
 android {
     namespace = "org.pablo.mygas"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -163,6 +170,10 @@ android {
     }
 }
 
+baselineProfile {
+    automaticGenerationDuringBuild = false
+}
+
 buildkonfig {
     packageName = "org.pablo.mygas"
 
@@ -179,7 +190,9 @@ buildkonfig {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    baselineProfile(project(":baselineprofile"))
     setOf(
+        "kspCommonMainMetadata",
         "kspAndroid", "kspDesktop", "kspIosX64", "kspIosArm64", "kspIosSimulatorArm64"
     ).forEach {
         add(it, libs.room.compiler)

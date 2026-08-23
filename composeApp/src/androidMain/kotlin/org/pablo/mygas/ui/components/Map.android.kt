@@ -147,10 +147,14 @@ actual fun Map(
     content: @Composable (() -> Unit)
 ) {
 
-    val alcalaDeHenares = LatLng(40.4817, -3.3644)
-
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(alcalaDeHenares, 12f)
+        position = CameraPosition.fromLatLngZoom(
+            LatLng(
+                state.cameraPosition.coordinates.latitude,
+                state.cameraPosition.coordinates.longitude,
+            ),
+            state.cameraPosition.zoom,
+        )
     }
     val adaptedMarkers = remember(state.markers) {
         state.markers.map { marker ->

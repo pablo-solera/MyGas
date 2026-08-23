@@ -17,6 +17,7 @@ import org.pablo.mygas.data.local.database.GasStationDao
 import org.pablo.mygas.data.local.database.RoomGasStationAdapter
 import org.pablo.mygas.data.local.UserPreferencesRepositoryImpl
 import org.pablo.mygas.data.local.database.getRoomDatabase
+import org.pablo.mygas.core.state.SelectedMunicipalityStore
 import org.pablo.mygas.data.remote.MunicipioService
 import org.pablo.mygas.data.remote.adapters.PrecioilGasStationAdapter
 import org.pablo.mygas.data.remote.datasources.GovernmentGasStationDataSource
@@ -34,6 +35,7 @@ import org.pablo.mygas.ui.viewmodels.MapViewModel
 import org.pablo.mygas.ui.viewmodels.SettingsViewModel
 
 val appModule = module {
+    single { SelectedMunicipalityStore() }
     // Api key
     // Database
     single<GasStationDao> { get<AppDatabase>().gasStationDao() }
@@ -65,7 +67,7 @@ val dataModule = module {
 }
 
 val viewModelsModule = module {
-    viewModel { HomeViewModel(get(), get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get(), selectionStore = get()) }
     viewModelOf(::GasolineraFavoriteViewModel)
     viewModelOf(::GasolineraDetailViewModel)
     viewModelOf(::MapViewModel)
