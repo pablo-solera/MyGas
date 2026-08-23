@@ -1,13 +1,10 @@
 package org.pablo.mygas.domain.models.map
 
-import org.pablo.mygas.ui.state.Loadable
-
 data class MapState(
     val cameraPosition: MapCameraPosition = MapCameraPosition(
-        coordinates = MapCoordinate(0.0, 0.0),
-        zoom = 14f
+        coordinates = MapCoordinate(40.4817, -3.3644),
+        zoom = 12f
     ),
     val markers: List<MapMarker> = emptyList(),
     val settings: MapSettings = MapSettings(),
-    val markersState: Loadable<List<MapMarker>> = Loadable.Idle,
 )

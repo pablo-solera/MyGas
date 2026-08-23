@@ -42,7 +42,7 @@ class HomeViewModel(
     val getAllMunicipiosByProvinciaUseCase: GetAllMunicipiosByProvinciaUseCase,
     val getGasolineraByIdUseCase: GetGasolineraByIdUseCase,
     private val cpuDispatcher: CoroutineDispatcher = Dispatchers.Default,
-    private val selectionStore: SelectedMunicipalityStore = SelectedMunicipalityStore(),
+    private val selectionStore: SelectedMunicipalityStore,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())

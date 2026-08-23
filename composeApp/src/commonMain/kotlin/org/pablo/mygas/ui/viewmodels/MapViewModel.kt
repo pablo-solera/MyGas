@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collectLatest
 import org.pablo.mygas.core.state.SelectedMunicipalityStore
-import org.pablo.mygas.ui.state.Loadable
 import org.pablo.mygas.domain.models.FuelType
 import org.pablo.mygas.domain.models.priceFor
 import org.pablo.mygas.domain.models.map.MapCoordinate
@@ -46,15 +45,9 @@ class MapViewModel(
                                 ?: currentState.cameraPosition.coordinates,
                         ),
                         markers = markers,
-                        markersState = Loadable.Content(markers),
                     )
                 }
             }
         }
-    }
-
-    fun retry() {
-        val current = _uiState.value
-        _uiState.value = current.copy(markersState = Loadable.Content(current.markers))
     }
 }

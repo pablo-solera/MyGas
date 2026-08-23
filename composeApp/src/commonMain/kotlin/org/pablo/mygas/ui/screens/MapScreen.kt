@@ -3,15 +3,11 @@ package org.pablo.mygas.ui.screens
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Navigation
-import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.rounded.NearMe
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ShapeDefaults
-import androidx.compose.material3.Text
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -25,8 +21,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.pablo.mygas.domain.models.map.MapProperties
 import org.pablo.mygas.ui.components.Map
 import org.pablo.mygas.ui.viewmodels.MapViewModel
-import org.pablo.mygas.ui.components.ErrorState
-import org.pablo.mygas.ui.state.Loadable
+import org.pablo.mygas.ui.components.NoGasStationsFound
 
 @Composable
 fun MapScreen(
@@ -48,17 +43,19 @@ fun MapScreen(
             }
         }
     ) { innerPadding ->
-        if (state.markersState is Loadable.Failed) {
-            ErrorState(
-                error = (state.markersState as Loadable.Failed).error,
-                onRetry = viewmodel::retry,
+        if (state.markers.isEmpty()) {
+            NoGasStationsFound(
+                title = "Selecciona un municipio",
+                message = "Elige provincia y municipio en Inicio para verlas en el mapa",
                 modifier = Modifier.padding(innerPadding),
             )
-        } else Map(
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
-            state = state,
-            properties = properties
-        )
+        } else {
+            Map(
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                state = state,
+                properties = properties
+            )
+        }
     }
 
 }

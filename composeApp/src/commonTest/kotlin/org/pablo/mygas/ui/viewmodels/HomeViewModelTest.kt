@@ -15,6 +15,7 @@ import kotlin.test.assertTrue
 import org.pablo.mygas.core.utils.NetworkError
 import org.pablo.mygas.core.utils.Provincia
 import org.pablo.mygas.core.utils.Result
+import org.pablo.mygas.core.state.SelectedMunicipalityStore
 import org.pablo.mygas.data.remote.GovernmentGasStationResponse
 import org.pablo.mygas.data.remote.MunicipioItem
 import org.pablo.mygas.data.remote.datasources.GovernmentGasStationDataSource
@@ -76,7 +77,8 @@ class HomeViewModelTest {
         getAllGasolinerasByMunicipioUseCase = GetAllGasolinerasByMunicipioUseCase(this),
         getAllMunicipiosByProvinciaUseCase = GetAllMunicipiosByProvinciaUseCase(this),
         getGasolineraByIdUseCase = GetGasolineraByIdUseCase(this),
-        cpuDispatcher = dispatcher
+        cpuDispatcher = dispatcher,
+        selectionStore = SelectedMunicipalityStore(),
     )
 
     private fun municipio(id: Any, name: String) = MunicipioItem(

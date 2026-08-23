@@ -13,7 +13,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.clustering.ClusterItem
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
@@ -149,13 +155,11 @@ actual fun Map(
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
-            LatLng(
-                state.cameraPosition.coordinates.latitude,
-                state.cameraPosition.coordinates.longitude,
-            ),
+            LatLng(state.cameraPosition.coordinates.latitude, state.cameraPosition.coordinates.longitude),
             state.cameraPosition.zoom,
         )
     }
+    var mapLoaded by remember { mutableStateOf(false) }
     val adaptedMarkers = remember(state.markers) {
         state.markers.map { marker ->
             CustomMarker(
@@ -166,6 +170,23 @@ actual fun Map(
                 fuelPrice = marker.fuelPrice,
                 isSelected = marker.isSelected
             )
+        }
+    }
+
+    LaunchedEffect(state.markers, mapLoaded) {
+        if (!mapLoaded || state.markers.isEmpty()) return@LaunchedEffect
+        val positions = state.markers.map { marker ->
+            LatLng(marker.position.latitude, marker.position.longitude)
+        }
+        if (positions.size == 1) {
+            cameraPositionState.animate(
+                CameraUpdateFactory.newLatLngZoom(positions.single(), 13f)
+            )
+        } else {
+            val bounds = LatLngBounds.builder().apply {
+                positions.forEach(::include)
+            }.build()
+            cameraPositionState.animate(CameraUpdateFactory.newLatLngBounds(bounds, 80))
         }
     }
 
@@ -191,6 +212,7 @@ actual fun Map(
             compassEnabled = state.settings.compassEnabled,
             mapToolbarEnabled = state.settings.mapToolbarEnabled
         ),
+        onMapLoaded = { mapLoaded = true },
         onMapClick = { onMapClick(MapCoordinate(it.latitude, it.longitude)) },
         onMapLongClick = { onMapLongClick(MapCoordinate(it.latitude, it.longitude)) }
     )
