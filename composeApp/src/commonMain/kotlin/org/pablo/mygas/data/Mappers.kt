@@ -77,8 +77,8 @@ fun GovernmentGasStationResponse.toDomain(): GasStation {
                 averagePrice = precioGasolina95E5.toSafeDouble()
             ),
             gasoline98 = FuelPrice(
-                price = 0.0,
-                averagePrice = 0.0
+                price = precioGasolina98E5.toSafeDouble(),
+                averagePrice = precioGasolina98E5.toSafeDouble()
             ),
             diesel = FuelPrice(
                 price = precioGasoleoA.toSafeDouble(),

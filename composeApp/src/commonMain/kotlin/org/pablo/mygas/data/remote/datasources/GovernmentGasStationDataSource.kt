@@ -13,7 +13,7 @@ interface GovernmentGasStationDataSource {
 
     suspend fun getComunidadesAutonomas(): org.pablo.mygas.core.utils.Result<List<ComunidadAutonomaResponse>, NetworkError>
 
-    suspend fun getMunicipiosByProvincia(provinciaId: Int): org.pablo.mygas.core.utils.Result<List<MunicipioItem>, NetworkError>
+    suspend fun getMunicipiosByProvincia(provinciaId: String): org.pablo.mygas.core.utils.Result<List<MunicipioItem>, NetworkError>
 
     suspend fun getGasolineraById(id: Int): Result<PrecioilGasStationResponse, NetworkError>
 }

@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,7 +34,6 @@ import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.clustering.Clustering
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
-import com.swmansion.kmpmaps.core.ClusterSettings
 import org.jetbrains.compose.resources.painterResource
 import org.pablo.mygas.core.utils.GasStationImage
 import org.pablo.mygas.domain.models.FuelPrice
@@ -101,7 +101,7 @@ private fun MapMarkerPin(
         ) {
             Image(
                 painter = painterResource(
-                    GasStationImage().getImage(brand.split(" ").first())
+                    GasStationImage.getImage(brand.substringBefore(' '))
                 ),
                 contentDescription = null,
                 modifier = Modifier
@@ -152,6 +152,18 @@ actual fun Map(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(alcalaDeHenares, 12f)
     }
+    val adaptedMarkers = remember(state.markers) {
+        state.markers.map { marker ->
+            CustomMarker(
+                itemPosition = LatLng(marker.position.latitude, marker.position.longitude),
+                itemTitle = marker.title ?: marker.brand,
+                itemSnippet = "",
+                brand = marker.brand,
+                fuelPrice = marker.fuelPrice,
+                isSelected = marker.isSelected
+            )
+        }
+    }
 
     GoogleMap(
         modifier = modifier,
@@ -195,16 +207,7 @@ actual fun Map(
                     isSelected = firstMarker?.isSelected == true
                 )
             },
-            items = state.markers.map { marker ->
-                CustomMarker(
-                    itemPosition = LatLng(marker.position.latitude, marker.position.longitude),
-                    itemTitle = marker.title ?: marker.brand,
-                    itemSnippet = "",
-                    brand = marker.brand,
-                    fuelPrice = marker.fuelPrice,
-                    isSelected = marker.isSelected
-                )
-            },
+            items = adaptedMarkers,
         )
 
 //            state.markers.map { marker ->

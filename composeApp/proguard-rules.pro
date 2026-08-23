@@ -7,6 +7,8 @@
 # Kotlin Serialization (si la usas para tu API)
 -keepattributes *Annotation*, InnerClasses
 -keepnames class kotlinx.serialization.json.** { *; }
+-keep class org.pablo.mygas.core.navigation.** { *; }
+-keepnames class org.pablo.mygas.core.navigation.** { *; }
 -keepclassmembers class * {
     @kotlinx.serialization.Serializable *;
 }

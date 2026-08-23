@@ -52,8 +52,8 @@ fun GasStationMarker(
         ) {
             Image(
                 painterResource(
-                    GasStationImage().getImage(
-                        brand.split(" ").first()
+                    GasStationImage.getImage(
+                        brand.substringBefore(' ')
                     )
                 ),
                 contentDescription = null,

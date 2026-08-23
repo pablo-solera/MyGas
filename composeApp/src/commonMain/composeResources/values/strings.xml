@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">MyGas</string>
+    <string name="home_title">Encuentra mejor precio</string>
+    <string name="home_subtitle">Precios de combustible cerca de ti</string>
+    <string name="select_province">Selecciona una provincia</string>
+    <string name="select_town">Selecciona un municipio</string>
+    <string name="favorites_title">Tus favoritas</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="favorite_fuel">Combustible favorito</string>
+    <string name="tank_capacity">Capacidad del depósito</string>
+    <string name="liters">litros</string>
+    <string name="save">Guardar cambios</string>
+    <string name="saved">Cambios guardados</string>
+    <string name="retry">Reintentar</string>
+    <string name="no_stations">No hay gasolineras en esta zona</string>
+    <string name="no_favorites">Aún no tienes favoritas</string>
+    <string name="no_favorites_hint">Guarda una gasolinera para verla aquí.</string>
+    <string name="back">Volver</string>
+    <string name="add_favorite">Añadir a favoritas</string>
+    <string name="remove_favorite">Quitar de favoritas</string>
+    <string name="open_maps">Abrir indicaciones</string>
+    <string name="estimated_fill">Llenar el depósito</string>
+    <string name="price_unavailable">Precio no disponible</string>
+    <string name="location_soon">La ubicación estará disponible próximamente</string>
 </resources>

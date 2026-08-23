@@ -31,16 +31,17 @@ data class GovernmentGasStationResponse(
     // val Precio Gases licuados del petróleo: String,
 
     @SerialName("Precio Gasoleo A")
-    val precioGasoleoA: String,
+    val precioGasoleoA: String? = null,
     // val Precio Gasoleo B: String,
     // val Precio Gasoleo Premium: String,
     // val Precio Gasolina 95 E10: String,
 
     @SerialName("Precio Gasolina 95 E5")
-    val precioGasolina95E5: String,
+    val precioGasolina95E5: String? = null,
     // val Precio Gasolina 95 E5 Premium: String,
     // val Precio Gasolina 98 E10: String,
-    // val Precio Gasolina 98 E5: String,
+    @SerialName("Precio Gasolina 98 E5")
+    val precioGasolina98E5: String? = null,
     // val Precio Hidrogeno: String,
     val Provincia: String,
     val Remisión: String,

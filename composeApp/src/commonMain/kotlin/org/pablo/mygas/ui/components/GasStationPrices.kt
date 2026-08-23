@@ -1,3 +1,5 @@
+package org.pablo.mygas.ui.components
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,10 +14,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.pablo.mygas.domain.models.GasStation
+import org.pablo.mygas.domain.models.FuelType
+import org.pablo.mygas.domain.models.displayName
+import org.pablo.mygas.domain.models.priceFor
 
 @Composable
 fun GasStationPrices(
-    gasStation: GasStation
+    gasStation: GasStation,
+    favoriteFuel: FuelType = FuelType.GASOLINE_95,
+    tankCapacityLiters: Double? = null,
 ) {
     Column {
         Text("Precios", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
@@ -26,11 +33,11 @@ fun GasStationPrices(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Gasóleo A",
+                text = favoriteFuel.displayName,
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "${gasStation.fuels.diesel.price}€",
+                text = gasStation.fuels.priceFor(favoriteFuel).price?.let { "$it €/l" } ?: "Sin datos",
                 style = MaterialTheme.typography.titleLarge
             )
         }
@@ -41,11 +48,13 @@ fun GasStationPrices(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Gasolina 95",
+                text = "Llenar el depósito",
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "${gasStation.fuels.gasoline95.price}€",
+                text = tankCapacityLiters?.let { liters ->
+                    gasStation.fuels.priceFor(favoriteFuel).price?.let { "${it * liters} €" } ?: "Sin datos"
+                } ?: "Configura la capacidad en Ajustes",
                 style = MaterialTheme.typography.titleLarge
             )
         }

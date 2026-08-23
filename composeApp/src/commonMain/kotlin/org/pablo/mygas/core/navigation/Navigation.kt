@@ -1,8 +1,19 @@
 package org.pablo.mygas.core.navigation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
@@ -73,19 +84,48 @@ fun Navigation() {
         }
     }
 
-    Scaffold(
-        bottomBar = { BottomNavigationBar(navController = navController) }
-    ) { innerPadding ->
+    BoxWithConstraints {
+        val compact = maxWidth < 600.dp
+        Scaffold(
+            bottomBar = { if (compact) BottomNavigationBar(navController = navController) },
+        ) { innerPadding ->
+            Row(modifier = Modifier.padding(innerPadding)) {
+                if (!compact) AdaptiveNavigationRail(navController)
+                NavHost(
+                    navController = navController,
+                    startDestination = HomeGraph,
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                ) {
+                    homeGraph()
+                    favoriteGraph()
+                    if (mapAvailable) mapGraph()
+                    settingsGraph()
+                }
+            }
+        }
+    }
+}
 
-        NavHost(
-            navController = navController,
-            startDestination = HomeGraph,
-            Modifier.padding(innerPadding)
-        ) {
-            homeGraph()
-            favoriteGraph()
-            mapGraph()
-            settingsGraph()
+@Composable
+private fun AdaptiveNavigationRail(navController: androidx.navigation.NavHostController) {
+    val destination by navController.currentBackStackEntryAsState()
+    NavigationRail {
+        val items = buildList {
+            add(BottomNavItem.Home)
+            add(BottomNavItem.Favorite)
+            if (mapAvailable) add(BottomNavItem.Map)
+            add(BottomNavItem.Settings)
+        }
+        items.forEach { item ->
+            val selected = destination?.destination?.hierarchy?.any {
+                it.route == item.route::class.qualifiedName
+            } == true
+            NavigationRailItem(
+                selected = selected,
+                onClick = { navController.navigate(item.route) },
+                icon = { Icon(item.icon, contentDescription = item.label) },
+                label = { Text(item.label) },
+            )
         }
     }
 }

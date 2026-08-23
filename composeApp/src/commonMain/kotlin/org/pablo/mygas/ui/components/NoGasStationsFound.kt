@@ -18,23 +18,30 @@ import mygas.composeapp.generated.resources.gasolinera
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun NoGasStationsFound() {
+fun NoGasStationsFound(
+    title: String = "No hay gasolineras en esta zona",
+    message: String? = null,
+    modifier: Modifier = Modifier,
+) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Image(
             painter = painterResource(Res.drawable.gasolinera),
-            contentDescription = "No gas stations found",
+            contentDescription = null,
             modifier = Modifier
                 .size(150.dp)
         )
         Spacer(Modifier.height(16.dp))
         Text(
-            text = "Parece que no hay gasolineras",
+            text = title,
             style = MaterialTheme.typography.bodyLarge
         )
+        message?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
 
     }
 }

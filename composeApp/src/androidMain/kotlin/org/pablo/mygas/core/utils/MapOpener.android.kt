@@ -10,16 +10,26 @@ actual class MapOpener actual constructor() {
 
         val appContext = GlobalContext.get().get<Context>()
 
-        // Replace commas with dots to ensure the format is correct for the URI
-        val latitudeFormatted = latitude.replace(",", ".")
-        val longitudeFormatted = longitude.replace(",", ".")
+        val latitudeFormatted = latitude.replace(",", ".").toDoubleOrNull()
+        val longitudeFormatted = longitude.replace(",", ".").toDoubleOrNull()
+        if (latitudeFormatted == null || longitudeFormatted == null ||
+            !latitudeFormatted.isFinite() || !longitudeFormatted.isFinite()
+        ) return
 
-        //val gmmIntentUri = "google.navigation:q=$latitudeFormatted,$longitudeFormatted".toUri()
         val gmmIntentUri = "geo:0,0?q=$latitudeFormatted,$longitudeFormatted".toUri()
-        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-        mapIntent.setPackage("com.google.android.apps.maps")
-        mapIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        val packageManager = appContext.packageManager
+        val googleMapsIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+            setPackage("com.google.android.apps.maps")
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        val mapIntent = if (googleMapsIntent.resolveActivity(packageManager) != null) {
+            googleMapsIntent
+        } else {
+            Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }.takeIf { it.resolveActivity(packageManager) != null }
+        }
 
-        appContext.startActivity(mapIntent, null)
+        mapIntent?.let { appContext.startActivity(it, null) }
     }
 }

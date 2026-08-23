@@ -21,20 +21,21 @@ val secretsProperties = Properties().apply {
     }
 }
 
-fun mapApiKeyFor(platform: String): String {
-    val platformKey = "MAPS_API_KEY_${platform.uppercase()}"
-    return providers.gradleProperty(platformKey).orNull
-        ?: providers.environmentVariable(platformKey).orNull
-        ?: secretsProperties.getProperty(platformKey)
-        ?: providers.gradleProperty("MAPS_API_KEY").orNull
-        ?: providers.environmentVariable("MAPS_API_KEY").orNull
-        ?: secretsProperties.getProperty("MAPS_API_KEY")
-        ?: error("$platformKey no encontrada. Añádela a secrets.properties, Gradle properties o variable de entorno.")
-}
+val androidMapsApiKey = providers.gradleProperty("MAPS_API_KEY_ANDROID").orNull
+    ?: providers.environmentVariable("MAPS_API_KEY_ANDROID").orNull
+    ?: providers.gradleProperty("MAPS_API_KEY").orNull
+    ?: providers.environmentVariable("MAPS_API_KEY").orNull
+    ?: secretsProperties.getProperty("MAPS_API_KEY_ANDROID")
+    ?: secretsProperties.getProperty("MAPS_API_KEY")
+    ?: error("MAPS_API_KEY_ANDROID no encontrada")
 
-val androidMapsApiKey = mapApiKeyFor("android")
-val desktopMapsApiKey = mapApiKeyFor("desktop")
-val iosMapsApiKey = mapApiKeyFor("ios")
+val desktopMapsApiKey = providers.gradleProperty("MAPS_API_KEY_DESKTOP").orNull
+    ?: providers.environmentVariable("MAPS_API_KEY_DESKTOP").orNull
+    ?: providers.gradleProperty("MAPS_API_KEY").orNull
+    ?: providers.environmentVariable("MAPS_API_KEY").orNull
+    ?: secretsProperties.getProperty("MAPS_API_KEY_DESKTOP")
+    ?: secretsProperties.getProperty("MAPS_API_KEY")
+    ?: error("MAPS_API_KEY_DESKTOP no encontrada")
 
 kotlin {
     androidTarget {
@@ -88,18 +89,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
 
-            implementation(libs.coil.compose)
-            implementation(libs.coil.network.ktor)
             implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.logging)
-            implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.json)
             implementation(libs.navigation.compose)
             implementation(libs.kotlinx.serialization.json)
-
-            // kmp-maps
-            implementation("com.swmansion.kmpmaps:core:0.9.1")
 
             // Icons
             implementation(libs.material.icons.extended)
@@ -108,6 +102,7 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
+            implementation(libs.multiplatform.settings.no.arg)
 
             // Room
             implementation(libs.room.runtime)
@@ -116,6 +111,9 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.mock)
+            implementation(libs.multiplatform.settings.test)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -125,7 +123,8 @@ kotlin {
             implementation("dev.datlag:kcef:2024.04.20.4")
 
             // Ktor
-            implementation(libs.ktor.client.okhttp)
+            implementation(libs.ktor.client.cio)
+            implementation("com.swmansion.kmpmaps:core:0.9.1")
         }
     }
 }
@@ -151,16 +150,16 @@ android {
         getByName("release") {
             isDebuggable = false
             isMinifyEnabled = true
-            signingConfig = signingConfigs.getByName("debug")
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro" // Le decimos que use nuestro archivo de reglas
             )
         }
-        compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_11
-            targetCompatibility = JavaVersion.VERSION_11
-        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }
 
@@ -172,20 +171,8 @@ buildkonfig {
     }
 
     targetConfigs {
-        create("android") {
-            buildConfigField(STRING, "MAPS_API_KEY", androidMapsApiKey)
-        }
         create("desktop") {
             buildConfigField(STRING, "MAPS_API_KEY", desktopMapsApiKey)
-        }
-        create("iosX64") {
-            buildConfigField(STRING, "MAPS_API_KEY", iosMapsApiKey)
-        }
-        create("iosArm64") {
-            buildConfigField(STRING, "MAPS_API_KEY", iosMapsApiKey)
-        }
-        create("iosSimulatorArm64") {
-            buildConfigField(STRING, "MAPS_API_KEY", iosMapsApiKey)
         }
     }
 }

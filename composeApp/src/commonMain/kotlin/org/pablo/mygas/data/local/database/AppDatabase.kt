@@ -26,7 +26,6 @@ expect fun provideDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
 
 fun getRoomDatabase(): AppDatabase {
     return provideDatabaseBuilder()
-        .fallbackToDestructiveMigration(dropAllTables = true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()

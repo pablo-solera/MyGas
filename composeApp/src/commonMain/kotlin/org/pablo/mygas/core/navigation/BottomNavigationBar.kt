@@ -19,13 +19,13 @@ fun BottomNavigationBar(navController: NavController) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination
 
-        val bottomScreens = remember {
-            listOf(
-                BottomNavItem.Home,
-                BottomNavItem.Favorite,
-                BottomNavItem.Map,
-                BottomNavItem.Settings
-            )
+        val bottomScreens = remember(mapAvailable) {
+            buildList {
+                add(BottomNavItem.Home)
+                add(BottomNavItem.Favorite)
+                if (mapAvailable) add(BottomNavItem.Map)
+                add(BottomNavItem.Settings)
+            }
         }
         bottomScreens.forEach { screen ->
             val isSelected =

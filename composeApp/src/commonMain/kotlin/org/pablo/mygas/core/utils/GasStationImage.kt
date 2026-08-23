@@ -18,7 +18,7 @@ import mygas.composeapp.generated.resources.servifacil
 import mygas.composeapp.generated.resources.shell
 import org.jetbrains.compose.resources.DrawableResource
 
-class GasStationImage {
+object GasStationImage {
 
      fun getImage(gasStation: String): DrawableResource {
         return when (gasStation.lowercase()) {
