@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import org.pablo.mygas.ui.components.CircularLoader
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -107,13 +109,12 @@ fun GasStationDetailScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp, 8.dp)
                 .verticalScroll(rememberScrollState())
-
+                .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 96.dp)
         ) {
 
             when (val loadState = state.loadState) {
-                Loadable.Loading -> Text(stringResource(Res.string.loading))
+                Loadable.Loading -> CircularLoader(Modifier.height(240.dp))
                 is Loadable.Failed -> ErrorState(loadState.error, { viewModel.retry(gasStationId) })
                 is Loadable.Content -> {
                     val gasStation = loadState.value
@@ -128,7 +129,7 @@ fun GasStationDetailScreen(
                         .clip(shape = RoundedCornerShape(16.dp))
                         .size(75.dp)
                 )
-                Spacer(modifier = Modifier.padding(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 GasStationInfo(gasStation)
                  GasStationPrices(gasStation, preferences.favoriteFuel, preferences.tankCapacityLiters)
                 }

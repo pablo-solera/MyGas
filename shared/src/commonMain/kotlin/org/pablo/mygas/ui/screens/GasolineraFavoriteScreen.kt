@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import org.koin.compose.viewmodel.koinViewModel
+import org.pablo.mygas.ui.components.CircularLoader
 import org.pablo.mygas.ui.components.GasStationList
 import org.pablo.mygas.ui.viewmodels.GasolineraFavoriteViewModel
 import org.pablo.mygas.ui.components.NoGasStationsFound
@@ -44,7 +45,7 @@ fun GasolineraFavoriteScreen(
 
     ) { padding ->
         when (val loadState = state.loadState) {
-            Loadable.Loading -> Text(stringResource(Res.string.loading), modifier = Modifier.padding(padding))
+            Loadable.Loading -> CircularLoader(Modifier.padding(padding))
             is Loadable.Failed -> ErrorState(
                 error = loadState.error,
                 onRetry = viewModel::retry,

@@ -71,6 +71,8 @@ ui/      viewmodels/ (solo casos de uso o interfaces de domain) · state/ · scr
 
 ## 4. UI y diseño
 
+> **Estado:** hechos textos a recursos, mensajes de error legibles, formato de precios, paleta completa clara/oscura, tema nativo Android día/noche, barras transparentes, `Card(onClick)`, encabezados semánticos, estados de carga e inicial en Inicio y marcadores accesibles en Desktop. Pendiente: color dinámico, selector de tema, `WindowSizeClass` con lista+detalle, previews, pull-to-refresh y traducciones.
+
 - **Textos:** casi todo escrito a mano aunque `strings.xml` ya tiene la mayoría de claves; falta `values-en/`. `ErrorState` enseña `unknown` al usuario.
 - **Precios:** una función común de formato (3 decimales por litro, 2 por total, coma decimal por locale) con tests.
 - **Insets y teclado:** `consumeWindowInsets`, `adjustResize`, `imePadding`, `isNavigationBarContrastEnforced = false`.

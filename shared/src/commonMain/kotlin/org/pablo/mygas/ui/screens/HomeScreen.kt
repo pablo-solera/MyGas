@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -82,7 +84,8 @@ fun HomeScreen(
                     onValueChange = viewModel::selectMunicipio
                 )
                 is Loadable.Failed -> ErrorState(municipiosState.error, viewModel::retryMunicipios)
-                else -> Unit
+                Loadable.Loading -> LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                Loadable.Idle -> Unit
             }
             when (val gasStationsState = state.gasStationsState) {
                 Loadable.Loading -> GasStationSkeletonList(modifier = Modifier.weight(1f))
@@ -102,7 +105,12 @@ fun HomeScreen(
                         onClick = { onGasStationClick(it) }
                     )
                 }
-                else -> Unit
+                Loadable.Idle -> if (state.municipios != null) {
+                    NoGasStationsFound(
+                        title = stringResource(Res.string.home_pick_municipality),
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
         }
     }

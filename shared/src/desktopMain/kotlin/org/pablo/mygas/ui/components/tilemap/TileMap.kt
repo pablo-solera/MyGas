@@ -2,6 +2,7 @@ package org.pablo.mygas.ui.components.tilemap
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -312,9 +314,9 @@ private fun MarkerLayer(
                             brand = single.brand,
                             price = single.fuelPrice?.price.toShortPriceText(),
                             isSelected = single.isSelected,
-                            modifier = Modifier.pointerInput(single.id) {
-                                detectTapGestures { onMarkerClick(single.id) }
-                            },
+                            modifier = Modifier
+                                .minimumInteractiveComponentSize()
+                                .clickable { onMarkerClick(single.id) },
                         )
                     } else {
                         Surface(
@@ -323,10 +325,9 @@ private fun MarkerLayer(
                             contentColor = MaterialTheme.colorScheme.onPrimary,
                             shadowElevation = 4.dp,
                             modifier = Modifier
+                                .minimumInteractiveComponentSize()
                                 .size(36.dp)
-                                .pointerInput(cluster.members.size) {
-                                    detectTapGestures { onClusterClick(cluster) }
-                                },
+                                .clickable { onClusterClick(cluster) },
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Text(

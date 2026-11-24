@@ -12,6 +12,7 @@
     <string name="home_subtitle">Precios de combustible cerca de ti</string>
     <string name="select_province">Selecciona una provincia</string>
     <string name="select_town">Selecciona un municipio</string>
+    <string name="home_pick_municipality">Elige un municipio para ver sus precios</string>
     <string name="no_stations">No hay gasolineras en esta zona</string>
 
     <!-- Favorites -->

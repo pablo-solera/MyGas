@@ -3,7 +3,6 @@ package org.pablo.mygas.ui.components
 import org.jetbrains.compose.resources.stringResource
 import org.pablo.mygas.resources.*
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,16 +39,16 @@ fun GasStationItem(
     tankCapacityLiters: Double? = null,
 ) {
     Card(
+        onClick = { onClick(gasStation) },
         modifier = Modifier
             .fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
     ) {
         Column(
             modifier = Modifier
-                .clickable { onClick(gasStation) }
                 .fillMaxWidth()
                 .padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -61,7 +60,7 @@ fun GasStationItem(
             ) {
                 Image(
                     painterResource(GasStationImage.getImage(gasStation.brand.substringBefore(' '))),
-                    contentDescription = gasStation.brand,
+                    contentDescription = null,
                     modifier = Modifier
                         .clip(shape = RoundedCornerShape(16.dp))
                         .size(56.dp)
