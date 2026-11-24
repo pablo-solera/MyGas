@@ -1,0 +1,155 @@
+# AGENTS.md — MyGas
+
+App Compose Multiplatform (Android, iOS, Desktop JVM) para consultar precios de carburante en España por provincia y municipio, con favoritos y mapa. Package base: `org.pablo.mygas`. Idioma de la UI y de la conversación: español.
+
+## Entorno
+
+- Desarrollo en **Windows**: no se puede compilar ni probar iOS localmente. Todo lo de iOS se valida solo por revisión de código o en CI con runner macOS. No afirmes que algo funciona en iOS sin haberlo compilado.
+- Cuando cambies código de `commonMain`, comprueba que no usa APIs de JVM/Android (debe compilar también en Kotlin/Native).
+
+## Estructura
+
+| Módulo | Contenido |
+|---|---|
+| `:shared` | Biblioteca KMP (plugin `com.android.kotlin.multiplatform.library`). Todo el código compartido y de plataforma. Targets: `android`, `iosArm64`, `iosSimulatorArm64` (framework estático `ComposeApp`), `jvm("desktop")` |
+| `:androidApp` | App Android: `MainActivity`, `MyGasApplication`, manifest, recursos, firma, R8 (`proguard-rules.pro`), versionCode/versionName |
+| `:desktopApp` | Solo `main.kt` y `compose.desktop` (empaquetado Dmg/Msi/Deb) |
+| `:baselineprofile` | Generador de baseline profile (UiAutomator). Apunta a `:androidApp`. `baseline-prof.txt` está versionado pero está obsoleto (ver "Pendiente") |
+| `iosApp/` | Proyecto Xcode (SwiftUI mínimo que envuelve `MainViewController`). Framework directo, sin CocoaPods ni SPM. Compila con `:shared:embedAndSignAppleFrameworkForXcode` |
+
+Source sets en `shared/src`: `commonMain`, `androidMain`, `iosMain`, `desktopMain`, `commonTest`.
+
+Paquetes en `org.pablo.mygas`: `core` (di, navigation, state, utils), `data` (local, remote), `domain` (models, repositories, usecases), `ui` (components, screens, state, theme, viewmodels). Los recursos de Compose se importan de `org.pablo.mygas.resources`.
+
+`expect/actual` actuales: `mapAvailable`, `mapNavigationAvailable`, `platformModule`, `GasStationDatabaseConstructor`, composable `Map(...)`.
+
+Mapa por plataforma, todos detrás de `expect fun Map(...)` (`ui/components/Map.kt`):
+- **Android:** Google Maps (`maps-compose`) con clustering. Necesita `MAPS_API_KEY`.
+- **Desktop:** mapa de teselas OpenStreetMap dibujado con Compose puro (`ui/components/tilemap/TileMap.kt`, caché en `~/.mygas/tiles`, User-Agent propio, máx. 2 descargas simultáneas, atribución visible). Sin clave ni Chromium. Arrastrar, rueda, doble clic y botones +/-.
+- **iOS:** MapKit (`MKMapView` en `UIKitView`). **Escrito sin compilar ni probar**: verificar en macOS/CI antes de fiarse.
+
+Comportamiento común (`MapScreen` + `MapViewModel`): al abrir busca en el área visible; al mover el mapa aparece "Buscar en esta zona"; por debajo de zoom 11 pide acercar; al tocar un marcador se abre `StationQuickSheet` con resumen, "Ver detalle" e "Ir con Google Maps". Los datos salen de la lista nacional del Ministerio (una sola descarga, caché en memoria 30 min, filtrada en local por `GasStationRepositoryImpl`).
+
+## Comandos
+
+```bash
+./gradlew :androidApp:assembleDebug         # Android debug
+./gradlew :desktopApp:run                   # Desktop
+./gradlew :shared:desktopTest :shared:testAndroidHostTest   # tests ejecutables en Windows
+./gradlew :androidApp:lintDebug             # lint
+MAPS_API_KEY=... ./gradlew :androidApp:assembleRelease      # release con R8 (exige clave)
+./gradlew :desktopApp:packageMsi            # instalador Windows
+./gradlew :shared:desktopTest --tests '*MapViewModelTest'   # un test concreto
+```
+
+En Windows usa `gradlew.bat` si `./gradlew` falla. No ejecutes tareas `ios*` ni `link*Ios*` aquí.
+
+Hace falta `local.properties` con `sdk.dir=...` (está ignorado por git) y la plataforma Android 37 (compileSdk 37; la instala AGP al aceptar licencias).
+
+## Clave de Google Maps
+
+Solo la usa Android. Se busca en este orden: propiedad Gradle, variable de entorno, `secrets.properties` (raíz, ignorado por git):
+
+```properties
+MAPS_API_KEY=...
+```
+
+Es **opcional para debug y tests** (el mapa sale gris sin clave) y **obligatoria para `assembleRelease`/`bundleRelease`**: el build falla con un mensaje claro si falta. Nunca escribas claves reales en el repositorio, en logs ni en commits.
+
+## Versiones (estado actual)
+
+Gradle 9.6.0 · AGP 9.5.2 · Kotlin 2.4.21 · Compose Multiplatform 1.12.2 · KSP 2.3.14 · Koin 4.1.1 · Ktor 3.3.0 · Room 2.8.1 (BundledSQLiteDriver) · navigation-compose (JetBrains) 2.10.0 · lifecycle (JetBrains) 2.10.0 · kotlinx.serialization 1.9.0 · compileSdk 37 · targetSdk 36 · minSdk 24. JDK 17+ (se usa el instalado, 25).
+
+Las dependencias van en `gradle/libs.versions.toml`; no añadas versiones directamente en los `build.gradle.kts`. Ya no existe `iosX64` (lo retiró Compose Multiplatform).
+
+## Arquitectura objetivo: MVVM por capas
+
+Se **mantiene MVVM** (no migrar a MVI). Dirección de dependencias: `ui → domain ← data`.
+
+- **domain**: modelos puros de Kotlin, interfaces de repositorio y casos de uso. Sin DTOs, sin Ktor, sin Room, sin `Context`.
+- **data**: DTOs (`*Response`), entidades Room, servicios Ktor, mappers DTO/entidad → dominio, implementaciones de las interfaces de `domain`.
+- **ui**: ViewModels + `XState` expuesto como `StateFlow`. Los ViewModels dependen solo de casos de uso o interfaces de `domain`, nunca de adapters concretos de `data`.
+- Estados de carga: usa `ui/state/Loadable` (`Idle/Loading/Content/Failed`). No mezcles con flags `isLoading` paralelos.
+- Errores: `core/utils/Result<D, E>` con `NetworkError`. Relanza siempre `CancellationException`.
+- En Compose usa `collectAsStateWithLifecycle()`; las pantallas no deben hacer `koinInject` de repositorios, deben pedir los datos a su ViewModel.
+
+### Capas (estado)
+
+Ordenadas: `domain` y `ui` no importan `data` (solo `core/di` lo hace). Estructura actual:
+
+- `domain/repositories`: `GasStationRepository` (área, municipio, detalle), `LocationRepository`, `FavoritesRepository`, `UserPreferencesRepository`.
+- `domain/usecases`: `GetStationsInArea`, `GetStationsByMunicipality`, `GetStation`, `GetMunicipalities`, `ObserveFavoriteIds`, `SetFavorite`.
+- `data/repositories`: `GasStationRepositoryImpl`, `LocationRepositoryImpl`; Room implementa `FavoritesRepository` (`RoomGasStationAdapter`). `PrecioilGasStationDataSource` es interno de `data`.
+- Los ViewModels solo dependen de casos de uso y de `UserPreferencesRepository`, y exponen `preferences` a la pantalla.
+- Bindings de plataforma (builder de Room, `MapLauncher`) en `platformModule` (`expect val`), sin `GlobalContext`.
+
+Textos: todo el texto visible está en `composeResources/values/strings.xml` (español) y `values-en` (inglés); un test comprueba que ambos tengan las mismas claves y marcadores. Etiquetas de combustible y errores: `ui/components/UiLabels.kt` (`FuelType.label()`, `NetworkError.message()`). Pendiente: mezcla de nombres español/inglés (`Gasolinera*`, `Municipio*`); en código nuevo usa inglés en tipos y funciones y el texto visible va en recursos.
+
+## Convenciones
+
+- Koin con DSL (`singleOf`, `factoryOf`, `viewModelOf`) en `core/di/AppModule.kt`.
+- Navegación con rutas `@Serializable` en `core/navigation/Screens.kt`. Mantén igual el comportamiento de `NavigationBar` y `NavigationRail` (`popUpTo`, `launchSingleTop`, `restoreState`).
+- Inyecta dispatchers para poder testear; evita `Dispatchers.IO/Default` fijos.
+- No dejes código comentado ni imports sin usar.
+- Código de plataforma: preferir interfaz en `commonMain` + implementación inyectada; usar `expect/actual` solo cuando sea lo más simple.
+
+## Tests
+
+- `commonTest` con `kotlin.test`, `kotlinx-coroutines-test`, Ktor `MockEngine`, `MapSettings`. Fakes escritos a mano. No hay Turbine ni mocking library.
+- Cubierto: favoritos y detalle, mappers, formato de precios, Mercator, clustering, viewport, servicio, adapter, repositorio de áreas, Home/Map/Settings VM y el grafo de Koin con fakes (`commonTest/.../testing/Fakes.kt`). Sin tests: DAO y UI.
+- Nombres de test sin comas ni caracteres que rompan Kotlin/Native (ver skill `kmp-testing-strategy`).
+
+## Hoja de ruta (contexto para el agente)
+
+1. ~~Migrar a AGP 9~~ (hecho en `chore/agp9-migration`): estructura `shared` + `androidApp` + `desktopApp`. Pendiente: verificar en dispositivo real un APK release con R8 y compilar iOS en macOS/CI.
+2. ~~Ordenar capas~~, ~~textos a recursos~~, ~~tema y accesibilidad básica~~ (hecho). Siguiente: traducciones y selector de tema.
+3. **Mapa en iOS**: implementado con MapKit pero **sin compilar**. Falta verificarlo en macOS/CI y, cuando haya ubicación del usuario, añadir `NSLocationWhenInUseUsageDescription`.
+4. **Publicación en Google Play y App Store**: firma, `versionCode`/`CFBundleVersion`, política de Play, ficha de datos, `Info.plist` (hoy lista `armv7`), `TEAM_ID` vacío en `iosApp/Configuration/Config.xcconfig`. Usa `kmp-store-release` y `play-policy-insights`.
+5. **Ubicación del usuario** (aún no existe: el mapa no tiene botón de "mi ubicación"): permisos en Android e iOS y `LocationProvider` en `commonMain`.
+6. ~~CI con GitHub Actions~~ (hecho, ver abajo). Falta ver la primera ejecución real de `ci-ios.yml`.
+
+## CI (GitHub Actions)
+
+- `ci-android.yml`: tests, lint, `assembleDebug` y `assembleRelease` (R8) en cada push a `master`/`develop` y en PRs.
+- `ci-desktop.yml`: tests y `createDistributable` en Ubuntu, Windows y macOS.
+- `ci-ios.yml`: compila Kotlin/Native, ejecuta `iosSimulatorArm64Test` y `xcodebuild` sin firma en macOS. **Es la única verificación de iOS que existe**; si falla, es el primer sitio donde mirar.
+- `release-android.yml` (tag `v*` o manual): AAB y APK firmados con los secretos `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `MAPS_API_KEY`.
+- `release-desktop.yml` (tag `v*` o manual): `.deb`, `.msi` y `.dmg` adjuntos a la release.
+- `release-ios.yml` (manual, **experimental, nunca ejecutado**): archiva, exporta el IPA y opcionalmente sube a TestFlight.
+- Los jobs comparten `.github/actions/setup-build` (JDK 21, SDK de Android con plataforma 37, caché de Gradle). El módulo `shared` tiene target Android, así que todos los jobs necesitan el SDK.
+
+Guía de publicación y secretos: `docs/PUBLICACION.md`. Plantilla de política de privacidad: `docs/PRIVACY_POLICY.md`.
+
+## Skills instaladas (`.agents/skills/`)
+
+Cárgalas según la tarea:
+
+| Tarea | Skills |
+|---|---|
+| Arquitectura, capas, refactor | `kotlin-project-architecture-review`, `kotlin-kmp-refactor-safety`, `kotlin-project-state-management`, `kotlin-kmp-code-review`, `kotlin-platform-kmp-bridges`, `kmp-app-architecture` |
+| Compose / UI | `compose-expert`, `compose-state-and-effects`, `edge-to-edge` |
+| Corrutinas y Flow | `kotlin-concurrency-and-flow` |
+| Red y APIs (MINETUR, precioil) | `kmp-ktor-networking`, `kmp-api-contracts` |
+| Textos y localización | `kmp-strings-localization` |
+| Tests | `kmp-testing-strategy` |
+| AGP 9 / actualizaciones | `kotlin-tooling-agp9-migration`, `kmp-migration`, `kmp-compose-upgrade` |
+| iOS y mapa iOS | `kmp-ios-build`, `mapkit` |
+| Publicación y políticas | `kmp-store-release`, `play-policy-insights`, `android-permissions-security`, `r8-analyzer` |
+
+Si dos skills se contradicen, prevalece este archivo. En particular, ignora cualquier recomendación de migrar a MVI o a Navigation 3.
+
+## Pendiente tras la migración a AGP 9
+
+- Regenerar `baselineprofile/src/main/baseline-prof.txt` (referencia el antiguo paquete `mygas.composeapp.generated.resources`).
+- iOS no se ha compilado: `baseName` del framework sigue siendo `ComposeApp` a propósito para no tocar los Swift; solo cambió la tarea de Gradle y la ruta en `project.pbxproj`.
+- Los `@Preview` están en `ui/components/Previews.kt`; las pantallas completas no tienen preview porque dependen de Koin.
+- Hecho: inglés, selector de tema, lista+detalle en pantallas anchas, pull-to-refresh y previews. Sigue pendiente el baseline profile (necesita emulador) y probar el release con R8 en un dispositivo.
+- Informe completo de la auditoría: `docs/AUDITORIA.md`.
+
+## Reglas para el agente
+
+- Cambios pequeños, un tema por commit. Mensajes en formato Conventional Commits.
+- Antes de refactorizar, comprueba qué tests existen y ejecútalos; después, vuelve a ejecutarlos.
+- No toques `shared/schemas/` a mano (lo genera Room). Cualquier cambio de `@Database` exige subir la versión y escribir migración.
+- No subas `secrets.properties`, `local.properties`, keystores ni claves.
+- No actualices versiones en bloque; sigue `kmp-compose-upgrade` y comprueba la compatibilidad.

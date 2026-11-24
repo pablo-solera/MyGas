@@ -1,0 +1,71 @@
+name: CI iOS
+
+# The project is developed on Windows, so this is the only place where iOS is ever compiled.
+on:
+  push:
+    branches: [master, develop]
+    paths:
+      - "shared/**"
+      - "iosApp/**"
+      - "gradle/**"
+      - "*.gradle.kts"
+      - ".github/**"
+  pull_request:
+    paths:
+      - "shared/**"
+      - "iosApp/**"
+      - "gradle/**"
+      - "*.gradle.kts"
+      - ".github/**"
+
+concurrency:
+  group: ci-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - uses: ./.github/actions/setup-build
+        with:
+          jvm-heap: 6g
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: konan-${{ runner.os }}-
+
+      - name: Compile Kotlin for iOS
+        run: ./gradlew :shared:compileKotlinIosSimulatorArm64 :shared:compileKotlinIosArm64 --stacktrace
+
+      - name: Shared tests on the iOS simulator
+        run: ./gradlew :shared:iosSimulatorArm64Test --stacktrace
+
+      - name: Build the Xcode project without signing
+        run: |
+          xcodebuild \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-reports
+          path: shared/build/reports/tests
+          if-no-files-found: ignore

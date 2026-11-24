@@ -1,0 +1,166 @@
+{
+  "version": 2,
+  "skills": {
+    "android-permissions-security": {
+      "source": "android/skills",
+      "commit": "7f7b21730a605d112ca9f79b6e40105ce7b670ee",
+      "sourceType": "github",
+      "skillPath": "security/android-permissions-security/SKILL.md",
+      "computedHash": "eb407bbe35d8afe518f7d20d396f097f483657be22f836618169e24edd0712ed"
+    },
+    "compose-expert": {
+      "source": "aldefy/compose-skill",
+      "commit": "6e838c050468b8e4c1988f121033775326d38f20",
+      "sourceType": "github",
+      "skillPath": "skills/compose-expert/SKILL.md",
+      "computedHash": "c6b42b077db5f5f1eb5f388b654e9c01949b1fbe669066a46985b6b451f65439"
+    },
+    "compose-state-and-effects": {
+      "source": "chrisbanes/skills",
+      "commit": "22dfaae2689ed8b3a5a36f18a0b30d41d90a95f0",
+      "sourceType": "github",
+      "skillPath": "skills/compose-state-and-effects/SKILL.md",
+      "computedHash": "bb1a176cd64f7e159555766ce30143e578bdb2b86f6fbba11b71efcb2222ef82"
+    },
+    "edge-to-edge": {
+      "source": "android/skills",
+      "commit": "7f7b21730a605d112ca9f79b6e40105ce7b670ee",
+      "sourceType": "github",
+      "skillPath": "system/edge-to-edge/SKILL.md",
+      "computedHash": "954c391ab845f97ce160c04c3944d6c6da3c7ad0385970353b314ee2a3aabea2"
+    },
+    "kmp-api-contracts": {
+      "source": "filippkowalski/kmp-skills-by-filip",
+      "commit": "13211c14104ef03a25cbce0edd56f3b6ff21c2df",
+      "sourceType": "github",
+      "skillPath": "skills/kmp-api-contracts/SKILL.md",
+      "computedHash": "bc4421b5bf3c1296dc66188f7ea06ad4386e63e18bef3457c0bbbd179c95cb95"
+    },
+    "kmp-app-architecture": {
+      "source": "filippkowalski/kmp-skills-by-filip",
+      "commit": "13211c14104ef03a25cbce0edd56f3b6ff21c2df",
+      "sourceType": "github",
+      "skillPath": "skills/kmp-app-architecture/SKILL.md",
+      "computedHash": "d935aa9d618ab6dad01049fdefa2486db6758f261a04b7d6e743b1984c409fe0"
+    },
+    "kmp-compose-upgrade": {
+      "source": "filippkowalski/kmp-skills-by-filip",
+      "commit": "13211c14104ef03a25cbce0edd56f3b6ff21c2df",
+      "sourceType": "github",
+      "skillPath": "skills/kmp-compose-upgrade/SKILL.md",
+      "computedHash": "ac3edb68d880d4bec43aa20520f010759de970e77d674dc0c8f9dfbc467ba260"
+    },
+    "kmp-ios-build": {
+      "source": "filippkowalski/kmp-skills-by-filip",
+      "commit": "13211c14104ef03a25cbce0edd56f3b6ff21c2df",
+      "sourceType": "github",
+      "skillPath": "skills/kmp-ios-build/SKILL.md",
+      "computedHash": "3a9a1fcd9537ef04a1a12f152ffb46176e7d09c03802b0a3ed971930b7e774df"
+    },
+    "kmp-ktor-networking": {
+      "source": "filippkowalski/kmp-skills-by-filip",
+      "commit": "13211c14104ef03a25cbce0edd56f3b6ff21c2df",
+      "sourceType": "github",
+      "skillPath": "skills/kmp-ktor-networking/SKILL.md",
+      "computedHash": "1e6ae61196c482089dde411ad62a37f65ef5cc84d60d16794db461f8cf431af7"
+    },
+    "kmp-migration": {
+      "source": "cmota/kmp-migration-skill",
+      "commit": "390e2a2c9a6a16f025b4a20d4e1292f7b8219154",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "1f5f73e628631e6e1a242db1905cf4d86d2d78406f045235fae41f9c9623af2e"
+    },
+    "kmp-store-release": {
+      "source": "filippkowalski/kmp-skills-by-filip",
+      "commit": "13211c14104ef03a25cbce0edd56f3b6ff21c2df",
+      "sourceType": "github",
+      "skillPath": "skills/kmp-store-release/SKILL.md",
+      "computedHash": "6a38e7f710ce6f99a60fcb2ae0501a4509231724e74fe5d9657b4be7a35c77c9"
+    },
+    "kmp-strings-localization": {
+      "source": "filippkowalski/kmp-skills-by-filip",
+      "commit": "13211c14104ef03a25cbce0edd56f3b6ff21c2df",
+      "sourceType": "github",
+      "skillPath": "skills/kmp-strings-localization/SKILL.md",
+      "computedHash": "6c05378585d2d5b2101f9ad180fe5cb6fed2c410c4a55c783fcec747395335e5"
+    },
+    "kmp-testing-strategy": {
+      "source": "filippkowalski/kmp-skills-by-filip",
+      "commit": "13211c14104ef03a25cbce0edd56f3b6ff21c2df",
+      "sourceType": "github",
+      "skillPath": "skills/kmp-testing-strategy/SKILL.md",
+      "computedHash": "099694982718b20ab4f69cd354ac5855999da21f494e4b8818950c9bffbf1b4e"
+    },
+    "kotlin-concurrency-and-flow": {
+      "source": "chrisbanes/skills",
+      "commit": "22dfaae2689ed8b3a5a36f18a0b30d41d90a95f0",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-concurrency-and-flow/SKILL.md",
+      "computedHash": "fc593d0bcfb35d873f5db70ca83870d17c3a8e6a7e6a417083470eb3a10973f8"
+    },
+    "kotlin-kmp-code-review": {
+      "source": "mmiani/kotlin-kmp-claude-agent-skills",
+      "commit": "939786cb13b49daacea7d5fb0a10877b6005e6be",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-kmp-code-review/SKILL.md",
+      "computedHash": "77b279a5a96a815051663fe852d92b17d54e1cc558f9bed0dae0c42e438ff9a1"
+    },
+    "kotlin-kmp-refactor-safety": {
+      "source": "mmiani/kotlin-kmp-claude-agent-skills",
+      "commit": "939786cb13b49daacea7d5fb0a10877b6005e6be",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-kmp-refactor-safety/SKILL.md",
+      "computedHash": "8c20c3fab744279335280786e2f0858f036ef37150922f500fff4587d8bb81fc"
+    },
+    "kotlin-platform-kmp-bridges": {
+      "source": "mmiani/kotlin-kmp-claude-agent-skills",
+      "commit": "939786cb13b49daacea7d5fb0a10877b6005e6be",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-platform-kmp-bridges/SKILL.md",
+      "computedHash": "418bff0e2cbb472be55decab336cad17bd2dae8877e403bf5df91450d688ea8a"
+    },
+    "kotlin-project-architecture-review": {
+      "source": "mmiani/kotlin-kmp-claude-agent-skills",
+      "commit": "939786cb13b49daacea7d5fb0a10877b6005e6be",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-project-architecture-review/SKILL.md",
+      "computedHash": "f6a8201ca98d745e228f73e182f08cb42b1cdfc3314dba97a224e3d919825f68"
+    },
+    "kotlin-project-state-management": {
+      "source": "mmiani/kotlin-kmp-claude-agent-skills",
+      "commit": "939786cb13b49daacea7d5fb0a10877b6005e6be",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-project-state-management/SKILL.md",
+      "computedHash": "752cb079a6be92e36eef83e659314663fd00b81bc1e04f0a897dfd23fa4d4ec3"
+    },
+    "kotlin-tooling-agp9-migration": {
+      "source": "Kotlin/kotlin-agent-skills",
+      "commit": "087f5689c1934135ed58718cdf524525e452b7e9",
+      "sourceType": "github",
+      "skillPath": "skills/kotlin-tooling-agp9-migration/SKILL.md",
+      "computedHash": "c5f205c9d223b1711e81e2dd3b56d02d24894507466582f987ded45ffd9a3d19"
+    },
+    "mapkit": {
+      "source": "TalissonVitorino/kmp-ios-skills",
+      "commit": "96a970b75c86324b09fdb6b2cbadab0a147fd6c1",
+      "sourceType": "github",
+      "skillPath": "ios/mapkit/SKILL.md",
+      "computedHash": "53860eff07755b0671f9afcb3437afed39e3645f69f00a0e41fc08f6392e6cd5"
+    },
+    "play-policy-insights": {
+      "source": "android/skills",
+      "commit": "7f7b21730a605d112ca9f79b6e40105ce7b670ee",
+      "sourceType": "github",
+      "skillPath": "play/play-policy-insights/SKILL.md",
+      "computedHash": "4c86f15e9147f2227073d0bea8098432a7c0973f3428675d43bfc8c321f44e3e"
+    },
+    "r8-analyzer": {
+      "source": "android/skills",
+      "commit": "7f7b21730a605d112ca9f79b6e40105ce7b670ee",
+      "sourceType": "github",
+      "skillPath": "performance/r8-analyzer/SKILL.md",
+      "computedHash": "fbd0f9f9e434b0732302d0de0ba69606ef3a5806478d35aa128e09fe4828f276"
+    }
+  }
+}

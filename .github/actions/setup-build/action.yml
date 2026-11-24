@@ -1,0 +1,29 @@
+name: Setup build
+description: JDK, Gradle cache and Android SDK (the shared module has an Android target, so every platform job needs it).
+
+inputs:
+  jvm-heap:
+    description: Gradle daemon heap
+    default: 4g
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 21
+
+    - uses: android-actions/setup-android@v3
+
+    - name: Install Android platform and build tools
+      shell: bash
+      run: sdkmanager --install "platforms;android-37.0" "build-tools;36.0.0"
+
+    - uses: gradle/actions/setup-gradle@v4
+
+    - name: Configure Gradle memory
+      shell: bash
+      run: |
+        mkdir -p ~/.gradle
+        echo "org.gradle.jvmargs=-Xmx${{ inputs.jvm-heap }} -Dfile.encoding=UTF-8" >> ~/.gradle/gradle.properties

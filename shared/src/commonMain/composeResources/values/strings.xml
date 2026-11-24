@@ -1,0 +1,86 @@
+<resources>
+    <string name="app_name">MyGas</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_favorites">Favoritos</string>
+    <string name="nav_map">Mapa</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Home -->
+    <string name="home_title">Encuentra mejor precio</string>
+    <string name="home_subtitle">Precios de combustible cerca de ti</string>
+    <string name="select_province">Selecciona una provincia</string>
+    <string name="select_town">Selecciona un municipio</string>
+    <string name="home_pick_municipality">Elige un municipio para ver sus precios</string>
+    <string name="no_stations">No hay gasolineras en esta zona</string>
+
+    <!-- Favorites -->
+    <string name="favorites_title">Tus favoritas</string>
+    <string name="no_favorites">Aún no tienes favoritas</string>
+    <string name="no_favorites_hint">Guarda una gasolinera para verla aquí.</string>
+    <string name="add_favorite">Añadir a favoritas</string>
+    <string name="remove_favorite">Quitar de favoritas</string>
+
+    <!-- Station -->
+    <string name="back">Volver</string>
+    <string name="loading">Cargando…</string>
+    <string name="open_maps">Iniciar navegación</string>
+    <string name="prices_title">Precios</string>
+    <string name="station_schedule">Horario</string>
+    <string name="price_average">Media</string>
+    <string name="price_tank">Depósito</string>
+    <string name="estimated_fill">Llenar el depósito</string>
+    <string name="price_unavailable">Sin datos</string>
+    <string name="tank_capacity_hint">Configura la capacidad en Ajustes</string>
+    <string name="station_view_detail">Ver detalle</string>
+    <string name="station_go_google_maps">Ir con Google Maps</string>
+    <string name="station_opening_hours">Horario</string>
+    <string name="station_other_fuels">Otros combustibles</string>
+    <string name="station_select_hint">Selecciona una gasolinera para ver su detalle</string>
+
+    <!-- Fuels -->
+    <string name="fuel_gasoline_95">Gasolina 95</string>
+    <string name="fuel_gasoline_98">Gasolina 98</string>
+    <string name="fuel_diesel">Gasóleo A</string>
+    <string name="fuel_diesel_premium">Gasóleo premium</string>
+    <string name="fuel_biodiesel">Biodiésel</string>
+    <string name="fuel_glp">GLP</string>
+    <string name="fuel_hvo">HVO</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_heading">Personaliza tus precios</string>
+    <string name="settings_description">Elige el combustible que quieres ver primero y calcula el coste de llenar tu depósito.</string>
+    <string name="favorite_fuel">Combustible favorito</string>
+    <string name="change">Cambiar</string>
+    <string name="tank_capacity">Capacidad del depósito</string>
+    <string name="liters">litros</string>
+    <string name="tank_capacity_error">Introduce un valor entre %1$d y %2$d litros</string>
+    <string name="save">Guardar cambios</string>
+    <string name="saved">Cambios guardados</string>
+    <string name="theme_title">Apariencia</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+
+    <!-- Map -->
+    <string name="map_search_here">Buscar en esta zona</string>
+    <string name="map_zoom_in">Acerca el mapa para ver gasolineras</string>
+    <string name="map_stations_found">%1$d gasolineras en esta zona</string>
+    <string name="map_no_stations">No hay gasolineras en esta zona</string>
+    <string name="map_attribution">© colaboradores de OpenStreetMap</string>
+    <string name="map_zoom_in_button">Acercar</string>
+    <string name="map_zoom_out_button">Alejar</string>
+
+    <!-- Errors -->
+    <string name="retry">Reintentar</string>
+    <string name="error_network_generic">No se han podido cargar los datos</string>
+    <string name="error_no_internet">Sin conexión a internet</string>
+    <string name="error_timeout">La petición ha tardado demasiado</string>
+    <string name="error_server">El servidor no está disponible ahora mismo</string>
+    <string name="error_not_found">No se ha encontrado la información</string>
+    <string name="error_too_many_requests">Demasiadas peticiones, inténtalo en unos minutos</string>
+    <string name="error_serialization">Los datos recibidos no son válidos</string>
+    <string name="error_unknown">Ha ocurrido un error inesperado</string>
+</resources>

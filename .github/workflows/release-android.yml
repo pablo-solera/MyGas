@@ -1,0 +1,58 @@
+name: Release Android
+
+on:
+  workflow_dispatch:
+    inputs:
+      version-name:
+        description: Version name (for example 1.0.0)
+        required: true
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      APP_VERSION_CODE: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-build
+
+      - name: Version name
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "APP_VERSION_NAME=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+          else
+            echo "APP_VERSION_NAME=${{ inputs.version-name }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Restore the upload keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+
+      - name: Tests
+        run: ./gradlew :shared:testAndroidHostTest
+
+      - name: Signed bundle and APK
+        run: ./gradlew :androidApp:bundleRelease :androidApp:assembleRelease
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-release-${{ env.APP_VERSION_NAME }}
+          path: |
+            androidApp/build/outputs/bundle/release/*.aab
+            androidApp/build/outputs/apk/release/*.apk
+            androidApp/build/outputs/mapping/release/mapping.txt
+
+      - name: Remove the keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.jks"

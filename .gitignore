@@ -7,7 +7,7 @@ xcuserdata
 local.properties
 secrets.properties
 kcef-bundle
-composeApp/release
+androidApp/release
 .idea
 .opencode
 .DS_Store

@@ -1,9 +1,8 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("com.android.test")
+    alias(libs.plugins.androidTest)
     alias(libs.plugins.baselineProfile)
-    alias(libs.plugins.kotlinAndroid)
 }
 
 android {
@@ -17,7 +16,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    targetProjectPath = ":composeApp"
+    targetProjectPath = ":androidApp"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
