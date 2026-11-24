@@ -1,0 +1,42 @@
+name: CI Desktop
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+
+concurrency:
+  group: ci-desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  desktop:
+    name: Desktop (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-build
+
+      - name: Unit tests
+        run: ./gradlew :shared:desktopTest --stacktrace
+
+      - name: Compile and create an app image
+        run: ./gradlew :desktopApp:createDistributable
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: desktop-reports-${{ matrix.os }}
+          path: shared/build/reports/tests
+          if-no-files-found: ignore

@@ -83,7 +83,7 @@ Ordenadas: `domain` y `ui` no importan `data` (solo `core/di` lo hace). Estructu
 - Los ViewModels solo dependen de casos de uso y de `UserPreferencesRepository`, y exponen `preferences` a la pantalla.
 - Bindings de plataforma (builder de Room, `MapLauncher`) en `platformModule` (`expect val`), sin `GlobalContext`.
 
-Textos: todo el texto visible está en `composeResources/values/strings.xml` (solo español). Etiquetas de combustible y errores: `ui/components/UiLabels.kt` (`FuelType.label()`, `NetworkError.message()`). Pendiente: mezcla de nombres español/inglés (`Gasolinera*`, `Municipio*`); en código nuevo usa inglés en tipos y funciones y el texto visible va en recursos.
+Textos: todo el texto visible está en `composeResources/values/strings.xml` (español) y `values-en` (inglés); un test comprueba que ambos tengan las mismas claves y marcadores. Etiquetas de combustible y errores: `ui/components/UiLabels.kt` (`FuelType.label()`, `NetworkError.message()`). Pendiente: mezcla de nombres español/inglés (`Gasolinera*`, `Municipio*`); en código nuevo usa inglés en tipos y funciones y el texto visible va en recursos.
 
 ## Convenciones
 
@@ -106,7 +106,19 @@ Textos: todo el texto visible está en `composeResources/values/strings.xml` (so
 3. **Mapa en iOS**: implementado con MapKit pero **sin compilar**. Falta verificarlo en macOS/CI y, cuando haya ubicación del usuario, añadir `NSLocationWhenInUseUsageDescription`.
 4. **Publicación en Google Play y App Store**: firma, `versionCode`/`CFBundleVersion`, política de Play, ficha de datos, `Info.plist` (hoy lista `armv7`), `TEAM_ID` vacío en `iosApp/Configuration/Config.xcconfig`. Usa `kmp-store-release` y `play-policy-insights`.
 5. **Ubicación del usuario** (aún no existe: el mapa no tiene botón de "mi ubicación"): permisos en Android e iOS y `LocationProvider` en `commonMain`.
-6. CI con GitHub Actions (no existe). Debe inyectar la clave de Maps como secreto.
+6. ~~CI con GitHub Actions~~ (hecho, ver abajo). Falta ver la primera ejecución real de `ci-ios.yml`.
+
+## CI (GitHub Actions)
+
+- `ci-android.yml`: tests, lint, `assembleDebug` y `assembleRelease` (R8) en cada push a `master`/`develop` y en PRs.
+- `ci-desktop.yml`: tests y `createDistributable` en Ubuntu, Windows y macOS.
+- `ci-ios.yml`: compila Kotlin/Native, ejecuta `iosSimulatorArm64Test` y `xcodebuild` sin firma en macOS. **Es la única verificación de iOS que existe**; si falla, es el primer sitio donde mirar.
+- `release-android.yml` (tag `v*` o manual): AAB y APK firmados con los secretos `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`, `MAPS_API_KEY`.
+- `release-desktop.yml` (tag `v*` o manual): `.deb`, `.msi` y `.dmg` adjuntos a la release.
+- `release-ios.yml` (manual, **experimental, nunca ejecutado**): archiva, exporta el IPA y opcionalmente sube a TestFlight.
+- Los jobs comparten `.github/actions/setup-build` (JDK 21, SDK de Android con plataforma 37, caché de Gradle). El módulo `shared` tiene target Android, así que todos los jobs necesitan el SDK.
+
+Guía de publicación y secretos: `docs/PUBLICACION.md`. Plantilla de política de privacidad: `docs/PRIVACY_POLICY.md`.
 
 ## Skills instaladas (`.agents/skills/`)
 
@@ -130,8 +142,8 @@ Si dos skills se contradicen, prevalece este archivo. En particular, ignora cual
 
 - Regenerar `baselineprofile/src/main/baseline-prof.txt` (referencia el antiguo paquete `mygas.composeapp.generated.resources`).
 - iOS no se ha compilado: `baseName` del framework sigue siendo `ComposeApp` a propósito para no tocar los Swift; solo cambió la tarea de Gradle y la ruta en `project.pbxproj`.
-- `@Preview` de `App.kt` usa la anotación de JetBrains (deprecada) y falla sin Koin.
-- Traducción al inglés (`values-en`), selector Claro/Oscuro/Sistema, layout lista+detalle en pantallas anchas y previews de componentes (no hay `@Preview` hoy).
+- Los `@Preview` están en `ui/components/Previews.kt`; las pantallas completas no tienen preview porque dependen de Koin.
+- Hecho: inglés, selector de tema, lista+detalle en pantallas anchas, pull-to-refresh y previews. Sigue pendiente el baseline profile (necesita emulador) y probar el release con R8 en un dispositivo.
 - Informe completo de la auditoría: `docs/AUDITORIA.md`.
 
 ## Reglas para el agente
