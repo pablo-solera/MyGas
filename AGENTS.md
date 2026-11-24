@@ -21,7 +21,7 @@ Source sets en `shared/src`: `commonMain`, `androidMain`, `iosMain`, `desktopMai
 
 Paquetes en `org.pablo.mygas`: `core` (di, navigation, state, utils), `data` (local, remote), `domain` (models, repositories, usecases), `ui` (components, screens, state, theme, viewmodels). Los recursos de Compose se importan de `org.pablo.mygas.resources`.
 
-`expect/actual` actuales: `mapAvailable`, `mapNavigationAvailable`, `MapOpener`, `provideDatabaseBuilder()`, `GasStationDatabaseConstructor`, composable `Map(...)`.
+`expect/actual` actuales: `mapAvailable`, `mapNavigationAvailable`, `platformModule`, `GasStationDatabaseConstructor`, composable `Map(...)`.
 
 Mapa por plataforma, todos detrás de `expect fun Map(...)` (`ui/components/Map.kt`):
 - **Android:** Google Maps (`maps-compose`) con clustering. Necesita `MAPS_API_KEY`.
@@ -73,20 +73,17 @@ Se **mantiene MVVM** (no migrar a MVI). Dirección de dependencias: `ui → doma
 - Errores: `core/utils/Result<D, E>` con `NetworkError`. Relanza siempre `CancellationException`.
 - En Compose usa `collectAsStateWithLifecycle()`; las pantallas no deben hacer `koinInject` de repositorios, deben pedir los datos a su ViewModel.
 
-### Deuda conocida (ordenar capas)
+### Capas (estado)
 
-Al tocar estas zonas, aprovecha para corregirlas, pero en cambios pequeños y verificables:
+Ordenadas: `domain` y `ui` no importan `data` (solo `core/di` lo hace). Estructura actual:
 
-1. Casos de uso que devuelven DTOs (`GasolinerasResponse`, `PrecioilGasStationResponse`, `MunicipioItem` llegan a la UI): crear modelos de dominio y mapear en `data`.
-2. `GasStationRepository` ya tiene implementación (búsqueda por área). `LocationRepository` sigue sin implementar.
-3. `GasolineraDetailViewModel` y `GasolineraFavoriteViewModel` ya dependen de interfaces de data, pero aún no de casos de uso de domain.
-4. `GetAllComunidadesAutonomasUseCase` depende de `GasolinerasRepository` concreto, no de `GovernmentGasStationDataSource`.
-5. Nombres invertidos: `GasolinerasRepository` es en realidad un data source.
-6. Android obtiene `Context` con `GlobalContext.get()` (`MapOpener.android.kt`, `AppDatabase.android.kt`); inyéctalo por Koin.
-7. ~~`SelectedMunicipalityStore`~~ eliminado: el mapa busca por área y ya no depende de Inicio.
-8. ~~Bugs en `data/Mappers.kt`~~ corregidos (con `MappersTest`).
-9. Textos de UI escritos directamente en composables aunque existe `composeResources/values/strings.xml`; precios sin formatear/redondear.
-10. Mezcla de nombres español/inglés (`Gasolinera*`, `Municipio*`, `Provincia` vs `GasStation*`). Para código nuevo usa inglés en tipos y funciones; el texto visible va en recursos.
+- `domain/repositories`: `GasStationRepository` (área, municipio, detalle), `LocationRepository`, `FavoritesRepository`, `UserPreferencesRepository`.
+- `domain/usecases`: `GetStationsInArea`, `GetStationsByMunicipality`, `GetStation`, `GetMunicipalities`, `ObserveFavoriteIds`, `SetFavorite`.
+- `data/repositories`: `GasStationRepositoryImpl`, `LocationRepositoryImpl`; Room implementa `FavoritesRepository` (`RoomGasStationAdapter`). `PrecioilGasStationDataSource` es interno de `data`.
+- Los ViewModels solo dependen de casos de uso y de `UserPreferencesRepository`, y exponen `preferences` a la pantalla.
+- Bindings de plataforma (builder de Room, `MapLauncher`) en `platformModule` (`expect val`), sin `GlobalContext`.
+
+Pendiente: mezcla de nombres español/inglés (`Gasolinera*`, `Municipio*`); en código nuevo usa inglés en tipos y funciones y el texto visible va en recursos.
 
 ## Convenciones
 
@@ -99,13 +96,13 @@ Al tocar estas zonas, aprovecha para corregirlas, pero en cambios pequeños y ve
 ## Tests
 
 - `commonTest` con `kotlin.test`, `kotlinx-coroutines-test`, Ktor `MockEngine`, `MapSettings`. Fakes escritos a mano. No hay Turbine ni mocking library.
-- Cubierto: mappers, formato de precios, Mercator, clustering, viewport, servicio, adapter, repositorio de áreas, Home/Map/Settings VM y el grafo de Koin con fakes (`commonTest/.../testing/Fakes.kt`). Sin tests: `GasolineraDetailViewModel`, `GasolineraFavoriteViewModel`, DAO y UI.
+- Cubierto: favoritos y detalle, mappers, formato de precios, Mercator, clustering, viewport, servicio, adapter, repositorio de áreas, Home/Map/Settings VM y el grafo de Koin con fakes (`commonTest/.../testing/Fakes.kt`). Sin tests: DAO y UI.
 - Nombres de test sin comas ni caracteres que rompan Kotlin/Native (ver skill `kmp-testing-strategy`).
 
 ## Hoja de ruta (contexto para el agente)
 
 1. ~~Migrar a AGP 9~~ (hecho en `chore/agp9-migration`): estructura `shared` + `androidApp` + `desktopApp`. Pendiente: verificar en dispositivo real un APK release con R8 y compilar iOS en macOS/CI.
-2. **Ordenar capas** (sección anterior).
+2. ~~Ordenar capas~~ (hecho). Siguiente: textos a recursos, tema y accesibilidad.
 3. **Mapa en iOS**: implementado con MapKit pero **sin compilar**. Falta verificarlo en macOS/CI y, cuando haya ubicación del usuario, añadir `NSLocationWhenInUseUsageDescription`.
 4. **Publicación en Google Play y App Store**: firma, `versionCode`/`CFBundleVersion`, política de Play, ficha de datos, `Info.plist` (hoy lista `armv7`), `TEAM_ID` vacío en `iosApp/Configuration/Config.xcconfig`. Usa `kmp-store-release` y `play-policy-insights`.
 5. **Ubicación del usuario** (aún no existe: el mapa no tiene botón de "mi ubicación"): permisos en Android e iOS y `LocationProvider` en `commonMain`.
@@ -134,7 +131,7 @@ Si dos skills se contradicen, prevalece este archivo. En particular, ignora cual
 - Regenerar `baselineprofile/src/main/baseline-prof.txt` (referencia el antiguo paquete `mygas.composeapp.generated.resources`).
 - iOS no se ha compilado: `baseName` del framework sigue siendo `ComposeApp` a propósito para no tocar los Swift; solo cambió la tarea de Gradle y la ruta en `project.pbxproj`.
 - `@Preview` de `App.kt` usa la anotación de JetBrains (deprecada) y falla sin Koin.
-- Capas pendientes de ordenar (domain aún importa DTOs en los casos de uso de Home), textos de UI a recursos, tema/modo oscuro del lado Android, `LocationRepository` sin implementar, y estado de Desktop sin `PrivacyInfo`/firma.
+- Textos de UI a recursos, tema/modo oscuro del lado Android y accesibilidad.
 - Informe completo de la auditoría: `docs/AUDITORIA.md`.
 
 ## Reglas para el agente

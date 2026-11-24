@@ -1,4 +1,4 @@
-package org.pablo.mygas.core.utils
+package org.pablo.mygas.domain.models
 
 enum class Provincia(val id: String, val displayName: String) {
     ALBACETE("02", "ALBACETE"),

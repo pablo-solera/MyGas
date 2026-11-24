@@ -19,19 +19,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
 import org.pablo.mygas.core.utils.NetworkError
 import org.pablo.mygas.core.utils.Result
-import org.pablo.mygas.data.local.database.GasStationLocalDataSource
-import org.pablo.mygas.data.remote.MunicipioItem
-import org.pablo.mygas.data.remote.datasources.GovernmentGasStationDataSource
 import org.pablo.mygas.data.remote.datasources.PrecioilGasStationDataSource
-import org.pablo.mygas.data.remote.responses.ComunidadAutonomaResponse
-import org.pablo.mygas.data.remote.responses.GasolinerasResponse
 import org.pablo.mygas.data.remote.responses.PrecioilGasStationResponse
 import org.pablo.mygas.domain.models.FuelPrice
 import org.pablo.mygas.domain.models.FuelPrices
 import org.pablo.mygas.domain.models.GasStation
 import org.pablo.mygas.domain.models.GeoLocation
 import org.pablo.mygas.domain.models.map.MapBounds
+import org.pablo.mygas.domain.models.Municipality
+import org.pablo.mygas.domain.repositories.FavoritesRepository
 import org.pablo.mygas.domain.repositories.GasStationRepository
+import org.pablo.mygas.domain.repositories.LocationRepository
 
 fun testClient(handler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData): HttpClient =
     HttpClient(MockEngine) {
@@ -75,30 +73,20 @@ fun station(
     ),
 )
 
-class FakeGovernmentSource : GovernmentGasStationDataSource {
-    val municipios = mutableMapOf<String, CompletableDeferred<Result<List<MunicipioItem>, NetworkError>>>()
-    val gasolineras = mutableMapOf<Int, CompletableDeferred<Result<GasolinerasResponse, NetworkError>>>()
-    val municipalityCalls = mutableListOf<String>()
-    val cancelledMunicipios = mutableSetOf<String>()
+class FakeLocationRepository : LocationRepository {
+    val municipalities = mutableMapOf<String, CompletableDeferred<Result<List<Municipality>, NetworkError>>>()
+    val calls = mutableListOf<String>()
+    val cancelled = mutableSetOf<String>()
 
-    override suspend fun getGasolinerasByMunicipio(municipioId: Int): Result<GasolinerasResponse, NetworkError> =
-        gasolineras[municipioId]?.await() ?: Result.Success(GasolinerasResponse())
-
-    override suspend fun getComunidadesAutonomas(): Result<List<ComunidadAutonomaResponse>, NetworkError> =
-        Result.Error(NetworkError.UNKNOWN)
-
-    override suspend fun getMunicipiosByProvincia(provinciaId: String): Result<List<MunicipioItem>, NetworkError> {
-        municipalityCalls += provinciaId
+    override suspend fun getMunicipalities(provinceId: String): Result<List<Municipality>, NetworkError> {
+        calls += provinceId
         return try {
-            municipios[provinciaId]?.await() ?: Result.Success(emptyList())
+            municipalities[provinceId]?.await() ?: Result.Success(emptyList())
         } catch (e: kotlinx.coroutines.CancellationException) {
-            cancelledMunicipios += provinciaId
+            cancelled += provinceId
             throw e
         }
     }
-
-    override suspend fun getGasolineraById(id: Int): Result<PrecioilGasStationResponse, NetworkError> =
-        Result.Error(NetworkError.UNKNOWN)
 }
 
 class FakePrecioilSource : PrecioilGasStationDataSource {
@@ -106,10 +94,9 @@ class FakePrecioilSource : PrecioilGasStationDataSource {
         throw org.pablo.mygas.core.utils.NetworkException(NetworkError.UNKNOWN)
 }
 
-class FakeFavorites : GasStationLocalDataSource {
+class FakeFavorites : FavoritesRepository {
     private val ids = MutableStateFlow<List<Int>>(emptyList())
     override fun observeFavoriteIds(): Flow<List<Int>> = ids
-    override suspend fun getAllFavoriteIds(): List<Int> = ids.value
     override suspend fun addFavorite(id: Int) { ids.value = ids.value + id }
     override suspend fun removeFavorite(id: Int) { ids.value = ids.value - id }
 }
@@ -118,9 +105,17 @@ class FakeStationRepository(
     var result: Result<List<GasStation>, NetworkError> = Result.Success(emptyList()),
 ) : GasStationRepository {
     val requestedBounds = mutableListOf<MapBounds>()
+    val municipalityResults = mutableMapOf<Int, CompletableDeferred<Result<List<GasStation>, NetworkError>>>()
+    val stationResults = mutableMapOf<Int, Result<GasStation, NetworkError>>()
 
     override suspend fun getStationsInArea(bounds: MapBounds): Result<List<GasStation>, NetworkError> {
         requestedBounds += bounds
         return result
     }
+
+    override suspend fun getStationsByMunicipality(municipalityId: Int): Result<List<GasStation>, NetworkError> =
+        municipalityResults[municipalityId]?.await() ?: Result.Success(emptyList())
+
+    override suspend fun getStation(id: Int): Result<GasStation, NetworkError> =
+        stationResults[id] ?: Result.Error(NetworkError.NOT_FOUND)
 }

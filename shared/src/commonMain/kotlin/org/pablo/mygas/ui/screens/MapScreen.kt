@@ -31,7 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.pablo.mygas.core.utils.MapOpener
+import org.koin.compose.koinInject
+import org.pablo.mygas.core.utils.MapLauncher
 import org.pablo.mygas.domain.models.map.MapProperties
 import org.pablo.mygas.resources.Res
 import org.pablo.mygas.resources.error_network_generic
@@ -52,7 +53,7 @@ fun MapScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val properties = remember { MapProperties() }
     val snackbarHostState = remember { SnackbarHostState() }
-    val mapOpener = remember { MapOpener() }
+    val mapLauncher = koinInject<MapLauncher>()
     val errorMessage = stringResource(Res.string.error_network_generic)
     val retryLabel = stringResource(Res.string.retry)
 
@@ -133,10 +134,7 @@ fun MapScreen(
                 onGasStationClick(station.id)
             },
             onNavigate = {
-                mapOpener.openMapActivity(
-                    station.location.latitude.toString(),
-                    station.location.longitude.toString(),
-                )
+                mapLauncher.open(station.location.latitude, station.location.longitude)
             },
         )
     }

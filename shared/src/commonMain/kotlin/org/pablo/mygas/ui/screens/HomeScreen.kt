@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
-import org.pablo.mygas.core.utils.Provincia
+import org.pablo.mygas.domain.models.Provincia
 import org.pablo.mygas.domain.models.GasStation
 import org.pablo.mygas.ui.components.CustomDropDownMenu
 import org.pablo.mygas.ui.components.GasStationList
@@ -26,9 +26,6 @@ import org.pablo.mygas.ui.components.NoGasStationsFound
 import org.pablo.mygas.ui.components.ErrorState
 import org.pablo.mygas.ui.state.Loadable
 import org.pablo.mygas.ui.viewmodels.HomeViewModel
-import org.pablo.mygas.domain.repositories.UserPreferencesRepository
-import org.pablo.mygas.domain.models.priceFor
-import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +34,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val preferences by koinInject<UserPreferencesRepository>().preferences.collectAsStateWithLifecycle()
+    val preferences by viewModel.preferences.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
@@ -79,10 +76,8 @@ fun HomeScreen(
                     itemList = municipiosState.value,
                     selectedText = state.municipio,
                     label = "Selecciona un municipio",
-                    itemText = { municipio -> municipio.municipio },
-                    onValueChange = { municipio ->
-                        municipio.idMunicipio.toIntOrNull()?.let(viewModel::getGasolinerasByMunicipio)
-                    }
+                    itemText = { municipio -> municipio.name },
+                    onValueChange = viewModel::selectMunicipio
                 )
                 is Loadable.Failed -> ErrorState(municipiosState.error, viewModel::retryMunicipios)
                 else -> Unit

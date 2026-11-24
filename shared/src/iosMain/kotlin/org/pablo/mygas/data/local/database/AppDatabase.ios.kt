@@ -19,7 +19,7 @@ private fun documentDirectory(): String {
     )
     return requireNotNull(documentDirectory?.path)
 }
-actual fun provideDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
+fun iosDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
     val dbFilePath = documentDirectory() + "/$DATABASE_NAME"
     return Room.databaseBuilder<AppDatabase>(
         name = dbFilePath,

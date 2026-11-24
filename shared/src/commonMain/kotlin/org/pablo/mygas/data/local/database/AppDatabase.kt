@@ -22,10 +22,8 @@ expect object GasStationDatabaseConstructor : RoomDatabaseConstructor<AppDatabas
     override fun initialize(): AppDatabase
 }
 const val DATABASE_NAME = "my_gas.db"
-expect fun provideDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
-
-fun getRoomDatabase(): AppDatabase {
-    return provideDatabaseBuilder()
+fun buildDatabase(builder: RoomDatabase.Builder<AppDatabase>): AppDatabase {
+    return builder
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()

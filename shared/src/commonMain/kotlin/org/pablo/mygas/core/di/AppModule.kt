@@ -16,19 +16,22 @@ import org.koin.dsl.module
 import org.pablo.mygas.data.local.UserPreferencesRepositoryImpl
 import org.pablo.mygas.data.local.database.AppDatabase
 import org.pablo.mygas.data.local.database.GasStationDao
-import org.pablo.mygas.data.local.database.GasStationLocalDataSource
 import org.pablo.mygas.data.local.database.RoomGasStationAdapter
-import org.pablo.mygas.data.local.database.getRoomDatabase
+import org.pablo.mygas.data.local.database.buildDatabase
 import org.pablo.mygas.data.remote.MunicipioService
 import org.pablo.mygas.data.remote.adapters.PrecioilGasStationAdapter
-import org.pablo.mygas.data.remote.datasources.GovernmentGasStationDataSource
 import org.pablo.mygas.data.remote.datasources.PrecioilGasStationDataSource
-import org.pablo.mygas.data.remote.repository.GasolinerasRepository
 import org.pablo.mygas.data.repositories.GasStationRepositoryImpl
 import org.pablo.mygas.domain.repositories.GasStationRepository
 import org.pablo.mygas.domain.repositories.UserPreferencesRepository
-import org.pablo.mygas.domain.usecases.GetAllGasolinerasByMunicipioUseCase
-import org.pablo.mygas.domain.usecases.GetAllMunicipiosByProvinciaUseCase
+import org.pablo.mygas.domain.usecases.GetMunicipalitiesUseCase
+import org.pablo.mygas.domain.usecases.GetStationUseCase
+import org.pablo.mygas.domain.usecases.GetStationsByMunicipalityUseCase
+import org.pablo.mygas.domain.usecases.ObserveFavoriteIdsUseCase
+import org.pablo.mygas.domain.usecases.SetFavoriteUseCase
+import org.pablo.mygas.data.repositories.LocationRepositoryImpl
+import org.pablo.mygas.domain.repositories.FavoritesRepository
+import org.pablo.mygas.domain.repositories.LocationRepository
 import org.pablo.mygas.domain.usecases.GetStationsInAreaUseCase
 import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
 import org.pablo.mygas.ui.viewmodels.GasolineraFavoriteViewModel
@@ -37,7 +40,7 @@ import org.pablo.mygas.ui.viewmodels.MapViewModel
 import org.pablo.mygas.ui.viewmodels.SettingsViewModel
 
 val appModule = module {
-    single<AppDatabase> { getRoomDatabase() }
+    single<AppDatabase> { buildDatabase(get()) }
     single<GasStationDao> { get<AppDatabase>().gasStationDao() }
 }
 
@@ -53,16 +56,16 @@ val dataModule = module {
         }
     }
     single { MunicipioService(get()) }
-    single<GovernmentGasStationDataSource> { GasolinerasRepository(get()) }
     single<PrecioilGasStationDataSource> { PrecioilGasStationAdapter(get()) }
-    single<GasStationLocalDataSource> { RoomGasStationAdapter(get()) }
-    single<GasStationRepository> { GasStationRepositoryImpl(get()) }
+    single<FavoritesRepository> { RoomGasStationAdapter(get()) }
+    single<GasStationRepository> { GasStationRepositoryImpl(get(), get()) }
+    single<LocationRepository> { LocationRepositoryImpl(get()) }
     single<Settings> { Settings() }
     single<UserPreferencesRepository> { UserPreferencesRepositoryImpl(get()) }
 }
 
 val viewModelsModule = module {
-    viewModel { HomeViewModel(get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get()) }
     viewModelOf(::GasolineraFavoriteViewModel)
     viewModelOf(::GasolineraDetailViewModel)
     viewModelOf(::MapViewModel)
@@ -70,12 +73,15 @@ val viewModelsModule = module {
 }
 
 val useCasesModule = module {
-    factoryOf(::GetAllGasolinerasByMunicipioUseCase)
-    factoryOf(::GetAllMunicipiosByProvinciaUseCase)
+    factoryOf(::GetMunicipalitiesUseCase)
+    factoryOf(::GetStationsByMunicipalityUseCase)
+    factoryOf(::GetStationUseCase)
     factoryOf(::GetStationsInAreaUseCase)
+    factoryOf(::ObserveFavoriteIdsUseCase)
+    factoryOf(::SetFavoriteUseCase)
 }
 
-val allModules = listOf(appModule, dataModule, viewModelsModule, useCasesModule)
+val allModules = listOf(platformModule, appModule, dataModule, viewModelsModule, useCasesModule)
 
 /** Safe to call more than once: the platform entry points may be re-created. */
 fun initKoin(config: KoinAppDeclaration? = null) {

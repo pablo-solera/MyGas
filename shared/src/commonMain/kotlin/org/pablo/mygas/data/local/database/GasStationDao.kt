@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import org.pablo.mygas.data.local.database.models.GasStationEntity
-import kotlin.reflect.KClass
 
 
 @Dao

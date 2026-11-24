@@ -1,10 +1,9 @@
-package org.pablo.mygas.data.local.database
+package org.pablo.mygas.domain.repositories
 
 import kotlinx.coroutines.flow.Flow
 
-interface GasStationLocalDataSource {
+interface FavoritesRepository {
     fun observeFavoriteIds(): Flow<List<Int>>
-    suspend fun getAllFavoriteIds(): List<Int>
     suspend fun addFavorite(id: Int)
     suspend fun removeFavorite(id: Int)
 }

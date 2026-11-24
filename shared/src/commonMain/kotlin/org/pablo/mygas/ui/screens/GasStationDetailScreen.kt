@@ -30,14 +30,13 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.pablo.mygas.core.utils.GasStationImage
-import org.pablo.mygas.core.utils.MapOpener
+import org.pablo.mygas.core.utils.MapLauncher
 import org.pablo.mygas.ui.components.GasStationInfo
 import org.pablo.mygas.ui.components.GasStationPrices
 import org.pablo.mygas.ui.components.ErrorState
 import org.pablo.mygas.ui.state.Loadable
 import org.pablo.mygas.core.navigation.mapNavigationAvailable
 import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
-import org.pablo.mygas.domain.repositories.UserPreferencesRepository
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,7 +47,8 @@ fun GasStationDetailScreen(
     viewModel: GasolineraDetailViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val preferences by koinInject<UserPreferencesRepository>().preferences.collectAsStateWithLifecycle()
+    val preferences by viewModel.preferences.collectAsStateWithLifecycle()
+    val mapLauncher = koinInject<MapLauncher>()
 
     LaunchedEffect(gasStationId) {
         viewModel.checkFavorite(gasStationId)
@@ -89,10 +89,7 @@ fun GasStationDetailScreen(
                 onClick = {
                     (state.loadState as? Loadable.Content)?.value?.let { gasStation ->
                         if (gasStation.hasValidLocation) {
-                            MapOpener().openMapActivity(
-                                gasStation.location.latitude.toString(),
-                                gasStation.location.longitude.toString()
-                            )
+                            mapLauncher.open(gasStation.location.latitude, gasStation.location.longitude)
                         }
                     }
                 }

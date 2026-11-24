@@ -4,11 +4,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import java.io.File
 
-actual fun provideDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
-    val databaseDirectory = File(System.getProperty("user.home"), ".mygas")
-        .apply { mkdirs() }
-    val dbFile = File(databaseDirectory, DATABASE_NAME)
+fun desktopDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
+    val databaseDirectory = File(System.getProperty("user.home"), ".mygas").apply { mkdirs() }
     return Room.databaseBuilder<AppDatabase>(
-        name = dbFile.absolutePath,
+        name = File(databaseDirectory, DATABASE_NAME).absolutePath,
     )
 }

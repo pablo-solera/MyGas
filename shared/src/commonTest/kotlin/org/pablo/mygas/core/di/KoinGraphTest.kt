@@ -8,16 +8,17 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
-import org.pablo.mygas.data.local.database.GasStationLocalDataSource
-import org.pablo.mygas.data.remote.datasources.GovernmentGasStationDataSource
-import org.pablo.mygas.data.remote.datasources.PrecioilGasStationDataSource
+import org.pablo.mygas.domain.repositories.FavoritesRepository
 import org.pablo.mygas.domain.repositories.GasStationRepository
-import org.pablo.mygas.domain.usecases.GetAllGasolinerasByMunicipioUseCase
-import org.pablo.mygas.domain.usecases.GetAllMunicipiosByProvinciaUseCase
+import org.pablo.mygas.domain.repositories.LocationRepository
+import org.pablo.mygas.domain.usecases.GetMunicipalitiesUseCase
+import org.pablo.mygas.domain.usecases.GetStationUseCase
+import org.pablo.mygas.domain.usecases.GetStationsByMunicipalityUseCase
 import org.pablo.mygas.domain.usecases.GetStationsInAreaUseCase
+import org.pablo.mygas.domain.usecases.ObserveFavoriteIdsUseCase
+import org.pablo.mygas.domain.usecases.SetFavoriteUseCase
 import org.pablo.mygas.testing.FakeFavorites
-import org.pablo.mygas.testing.FakeGovernmentSource
-import org.pablo.mygas.testing.FakePrecioilSource
+import org.pablo.mygas.testing.FakeLocationRepository
 import org.pablo.mygas.testing.FakeStationRepository
 import org.pablo.mygas.ui.viewmodels.GasolineraDetailViewModel
 import org.pablo.mygas.ui.viewmodels.GasolineraFavoriteViewModel
@@ -34,9 +35,8 @@ class KoinGraphTest {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         val fakes = module {
             single<Settings> { MapSettings() }
-            single<GasStationLocalDataSource> { FakeFavorites() }
-            single<GovernmentGasStationDataSource> { FakeGovernmentSource() }
-            single<PrecioilGasStationDataSource> { FakePrecioilSource() }
+            single<FavoritesRepository> { FakeFavorites() }
+            single<LocationRepository> { FakeLocationRepository() }
             single<GasStationRepository> { FakeStationRepository() }
         }
         val application = koinApplication { modules(allModules + fakes) }
@@ -48,9 +48,12 @@ class KoinGraphTest {
             assertNotNull(koin.get<GasolineraDetailViewModel>())
             assertNotNull(koin.get<MapViewModel>())
             assertNotNull(koin.get<SettingsViewModel>())
-            assertNotNull(koin.get<GetAllGasolinerasByMunicipioUseCase>())
-            assertNotNull(koin.get<GetAllMunicipiosByProvinciaUseCase>())
+            assertNotNull(koin.get<GetMunicipalitiesUseCase>())
+            assertNotNull(koin.get<GetStationsByMunicipalityUseCase>())
+            assertNotNull(koin.get<GetStationUseCase>())
             assertNotNull(koin.get<GetStationsInAreaUseCase>())
+            assertNotNull(koin.get<ObserveFavoriteIdsUseCase>())
+            assertNotNull(koin.get<SetFavoriteUseCase>())
         } finally {
             application.close()
             Dispatchers.resetMain()

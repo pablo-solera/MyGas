@@ -7,6 +7,7 @@ import org.pablo.mygas.core.utils.NetworkError
 import org.pablo.mygas.core.utils.Result
 import org.pablo.mygas.data.remote.MunicipioService
 import org.pablo.mygas.domain.models.map.MapBounds
+import org.pablo.mygas.testing.FakePrecioilSource
 import org.pablo.mygas.testing.jsonResponse
 import org.pablo.mygas.testing.testClient
 import kotlin.test.Test
@@ -31,7 +32,7 @@ class GasStationRepositoryImplTest {
     @Test
     fun `returns only valid stations inside the area with averages over that area`() = runTest {
         val client = testClient { jsonResponse(payload) }
-        val repository = GasStationRepositoryImpl(MunicipioService(client), TestTimeSource(), cpuDispatcher = StandardTestDispatcher(testScheduler))
+        val repository = GasStationRepositoryImpl(MunicipioService(client), FakePrecioilSource(), TestTimeSource(), cpuDispatcher = StandardTestDispatcher(testScheduler))
 
         val result = repository.getStationsInArea(madrid)
 
@@ -46,7 +47,7 @@ class GasStationRepositoryImplTest {
     fun `the national list is downloaded once and reused for different areas`() = runTest {
         var requests = 0
         val client = testClient { requests++; jsonResponse(payload) }
-        val repository = GasStationRepositoryImpl(MunicipioService(client), TestTimeSource(), cpuDispatcher = StandardTestDispatcher(testScheduler))
+        val repository = GasStationRepositoryImpl(MunicipioService(client), FakePrecioilSource(), TestTimeSource(), cpuDispatcher = StandardTestDispatcher(testScheduler))
 
         repository.getStationsInArea(madrid)
         val north = repository.getStationsInArea(MapBounds(41.5, -4.0, 42.5, -3.0))
@@ -64,7 +65,7 @@ class GasStationRepositoryImplTest {
             requests++
             if (requests == 1) jsonResponse(payload) else jsonResponse("", HttpStatusCode.InternalServerError)
         }
-        val repository = GasStationRepositoryImpl(MunicipioService(client), time, cacheTtl = 30.minutes, cpuDispatcher = StandardTestDispatcher(testScheduler))
+        val repository = GasStationRepositoryImpl(MunicipioService(client), FakePrecioilSource(), time, cacheTtl = 30.minutes, cpuDispatcher = StandardTestDispatcher(testScheduler))
         repository.getStationsInArea(madrid)
         time += 31.minutes
 
@@ -78,9 +79,30 @@ class GasStationRepositoryImplTest {
     @Test
     fun `an error is returned when there is nothing cached`() = runTest {
         val client = testClient { jsonResponse("", HttpStatusCode.ServiceUnavailable) }
-        val repository = GasStationRepositoryImpl(MunicipioService(client), TestTimeSource(), cpuDispatcher = StandardTestDispatcher(testScheduler))
+        val repository = GasStationRepositoryImpl(MunicipioService(client), FakePrecioilSource(), TestTimeSource(), cpuDispatcher = StandardTestDispatcher(testScheduler))
 
         assertEquals(Result.Error(NetworkError.SERVER_ERROR), repository.getStationsInArea(madrid))
+        client.close()
+    }
+
+    @Test
+    fun `municipality stations get average prices over the municipality`() = runTest {
+        val client = testClient { jsonResponse(payload) }
+        val repository = GasStationRepositoryImpl(MunicipioService(client), FakePrecioilSource(), TestTimeSource(), cpuDispatcher = StandardTestDispatcher(testScheduler))
+
+        val result = repository.getStationsByMunicipality(1) as Result.Success
+
+        assertEquals(listOf(1, 2, 3, 4), result.data.map { it.id })
+        assertEquals(1.5, result.data.first().fuels.gasoline95.averagePrice ?: 0.0, 1e-9)
+        client.close()
+    }
+
+    @Test
+    fun `station details failures become typed errors`() = runTest {
+        val client = testClient { jsonResponse(payload) }
+        val repository = GasStationRepositoryImpl(MunicipioService(client), FakePrecioilSource(), TestTimeSource(), cpuDispatcher = StandardTestDispatcher(testScheduler))
+
+        assertEquals(Result.Error(NetworkError.UNKNOWN), repository.getStation(1))
         client.close()
     }
 }

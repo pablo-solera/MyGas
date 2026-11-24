@@ -1,7 +1,5 @@
 package org.pablo.mygas.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -11,18 +9,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import org.pablo.mygas.resources.Res
-import org.pablo.mygas.resources.app_name
-import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.pablo.mygas.ui.components.GasStationList
 import org.pablo.mygas.ui.viewmodels.GasolineraFavoriteViewModel
-import org.pablo.mygas.domain.repositories.UserPreferencesRepository
-import org.pablo.mygas.domain.models.priceFor
-import org.koin.compose.koinInject
 import org.pablo.mygas.ui.components.NoGasStationsFound
 import org.pablo.mygas.ui.components.ErrorState
 import org.pablo.mygas.ui.state.Loadable
@@ -36,7 +27,7 @@ fun GasolineraFavoriteScreen(
 ) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val preferences by koinInject<UserPreferencesRepository>().preferences.collectAsStateWithLifecycle()
+    val preferences by viewModel.preferences.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
