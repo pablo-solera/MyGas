@@ -11,46 +11,50 @@ App Compose Multiplatform (Android, iOS, Desktop JVM) para consultar precios de 
 
 | Módulo | Contenido |
 |---|---|
-| `:composeApp` | KMP + app Android (`com.android.application`). Targets: `androidTarget`, `iosX64/Arm64/SimulatorArm64` (framework estático `ComposeApp`), `jvm("desktop")` |
-| `:baselineprofile` | Generador de baseline profile (UiAutomator). `baseline-prof.txt` está versionado |
-| `iosApp/` | Proyecto Xcode (SwiftUI mínimo que envuelve `MainViewController`). Integración por framework directo, sin CocoaPods ni SPM |
+| `:shared` | Biblioteca KMP (plugin `com.android.kotlin.multiplatform.library`). Todo el código compartido y de plataforma. Targets: `android`, `iosArm64`, `iosSimulatorArm64` (framework estático `ComposeApp`), `jvm("desktop")` |
+| `:androidApp` | App Android: `MainActivity`, `MyGasApplication`, manifest, recursos, firma, R8 (`proguard-rules.pro`), versionCode/versionName |
+| `:desktopApp` | Solo `main.kt` y `compose.desktop` (empaquetado Dmg/Msi/Deb) |
+| `:baselineprofile` | Generador de baseline profile (UiAutomator). Apunta a `:androidApp`. `baseline-prof.txt` está versionado pero está obsoleto (ver "Pendiente") |
+| `iosApp/` | Proyecto Xcode (SwiftUI mínimo que envuelve `MainViewController`). Framework directo, sin CocoaPods ni SPM. Compila con `:shared:embedAndSignAppleFrameworkForXcode` |
 
-Source sets en `composeApp/src`: `commonMain`, `androidMain`, `iosMain`, `desktopMain`, `commonTest`.
+Source sets en `shared/src`: `commonMain`, `androidMain`, `iosMain`, `desktopMain`, `commonTest`.
 
-Paquetes en `org.pablo.mygas`: `core` (di, navigation, state, utils), `data` (local, remote), `domain` (models, repositories, usecases), `ui` (components, screens, state, theme, viewmodels).
+Paquetes en `org.pablo.mygas`: `core` (di, navigation, state, utils), `data` (local, remote), `domain` (models, repositories, usecases), `ui` (components, screens, state, theme, viewmodels). Los recursos de Compose se importan de `org.pablo.mygas.resources`.
 
 `expect/actual` actuales: `mapAvailable`, `mapNavigationAvailable`, `MapOpener`, `provideDatabaseBuilder()`, `GasStationDatabaseConstructor`, composable `Map(...)`.
+
+Mapa por plataforma: Android usa `maps-compose`; iOS es un stub (`mapAvailable = false`); **Desktop no tiene mapa** (se eliminó KCEF/Chromium embebido): la pestaña se oculta y el botón del detalle abre Google Maps en el navegador del sistema.
 
 ## Comandos
 
 ```bash
-./gradlew :composeApp:assembleDebug            # Android debug
-./gradlew :composeApp:run                      # Desktop (pendiente verificar nombre de tarea)
-./gradlew :composeApp:allTests                 # tests de todos los targets disponibles
-./gradlew :composeApp:testDebugUnitTest        # tests en JVM/Android (los que se pueden ejecutar en Windows)
-./gradlew :composeApp:desktopTest              # solo si existe el source set
-./gradlew :composeApp:assembleRelease          # release con R8 (minify + shrink activos)
+./gradlew :androidApp:assembleDebug         # Android debug
+./gradlew :desktopApp:run                   # Desktop
+./gradlew :shared:desktopTest :shared:testAndroidHostTest   # tests ejecutables en Windows
+./gradlew :androidApp:lintDebug             # lint
+MAPS_API_KEY=... ./gradlew :androidApp:assembleRelease      # release con R8 (exige clave)
+./gradlew :desktopApp:packageMsi            # instalador Windows
 ```
 
 En Windows usa `gradlew.bat` si `./gradlew` falla. No ejecutes tareas `ios*` ni `link*Ios*` aquí.
 
-## Clave de Google Maps (obligatoria para compilar)
+Hace falta `local.properties` con `sdk.dir=...` (está ignorado por git) y la plataforma Android 37 (compileSdk 37; la instala AGP al aceptar licencias).
 
-El build **falla a propósito** si no hay clave. Se busca en este orden: propiedad Gradle, variable de entorno, `secrets.properties` (raíz, ignorado por git):
+## Clave de Google Maps
+
+Solo la usa Android. Se busca en este orden: propiedad Gradle, variable de entorno, `secrets.properties` (raíz, ignorado por git):
 
 ```properties
-MAPS_API_KEY_ANDROID=...
-MAPS_API_KEY_DESKTOP=...
-# o una sola: MAPS_API_KEY=...
+MAPS_API_KEY=...
 ```
 
-Nunca escribas claves reales en el repositorio, en logs ni en commits. Para tareas que no necesitan el mapa, usa una clave ficticia (`MAPS_API_KEY=dummy`) vía variable de entorno.
+Es **opcional para debug y tests** (el mapa sale gris sin clave) y **obligatoria para `assembleRelease`/`bundleRelease`**: el build falla con un mensaje claro si falta. Nunca escribas claves reales en el repositorio, en logs ni en commits.
 
 ## Versiones (estado actual)
 
-Kotlin 2.2.20 · Compose Multiplatform 1.9.0 · AGP 8.9.3 · Gradle 8.11.1 · KSP 2.2.20-2.0.4 · Koin 4.1.1 · Ktor 3.3.0 · Room 2.8.1 (BundledSQLiteDriver) · navigation-compose (JetBrains) 2.9.0 · kotlinx.serialization 1.9.0 · compileSdk/targetSdk 36 · minSdk 24.
+Gradle 9.6.0 · AGP 9.5.2 · Kotlin 2.4.21 · Compose Multiplatform 1.12.2 · KSP 2.3.14 · Koin 4.1.1 · Ktor 3.3.0 · Room 2.8.1 (BundledSQLiteDriver) · navigation-compose (JetBrains) 2.10.0 · lifecycle (JetBrains) 2.10.0 · kotlinx.serialization 1.9.0 · compileSdk 37 · targetSdk 36 · minSdk 24. JDK 17+ (se usa el instalado, 25).
 
-Las dependencias van en `gradle/libs.versions.toml`. No añadas versiones directamente en `build.gradle.kts` (hay algunas heredadas: maps-compose, kcef, kmpmaps, que conviene migrar al catálogo).
+Las dependencias van en `gradle/libs.versions.toml`; no añadas versiones directamente en los `build.gradle.kts`. Ya no existe `iosX64` (lo retiró Compose Multiplatform).
 
 ## Arquitectura objetivo: MVVM por capas
 
@@ -94,7 +98,7 @@ Al tocar estas zonas, aprovecha para corregirlas, pero en cambios pequeños y ve
 
 ## Hoja de ruta (contexto para el agente)
 
-1. **Migrar a AGP 9**: separar la app Android de `composeApp` (`shared` + `androidApp` + `desktopApp`), plugin `com.android.kotlin.multiplatform.library`, subir Gradle y Compose Multiplatform. Usa `kotlin-tooling-agp9-migration`, `kmp-migration` y `kmp-compose-upgrade`. Una fase por commit; verificar Android y Desktop tras cada una.
+1. ~~Migrar a AGP 9~~ (hecho en `chore/agp9-migration`): estructura `shared` + `androidApp` + `desktopApp`. Pendiente: verificar en dispositivo real un APK release con R8 y compilar iOS en macOS/CI.
 2. **Ordenar capas** (sección anterior).
 3. **Mapa en iOS** (hoy `Map.ios.kt` es un stub y `mapAvailable = false`): sin Mac no se puede compilar. Prepara el código y la configuración (`Info.plist`, textos de permisos de ubicación) y marca claramente que no está verificado. Considera CI en macOS.
 4. **Publicación en Google Play y App Store**: firma, `versionCode`/`CFBundleVersion`, política de Play, ficha de datos, `Info.plist` (hoy lista `armv7`), `TEAM_ID` vacío en `iosApp/Configuration/Config.xcconfig`. Usa `kmp-store-release` y `play-policy-insights`.
@@ -119,10 +123,17 @@ Cárgalas según la tarea:
 
 Si dos skills se contradicen, prevalece este archivo. En particular, ignora cualquier recomendación de migrar a MVI o a Navigation 3.
 
+## Pendiente tras la migración a AGP 9
+
+- Regenerar `baselineprofile/src/main/baseline-prof.txt` (referencia el antiguo paquete `mygas.composeapp.generated.resources`).
+- iOS no se ha compilado: `baseName` del framework sigue siendo `ComposeApp` a propósito para no tocar los Swift; solo cambió la tarea de Gradle y la ruta en `project.pbxproj`.
+- `@Preview` de `App.kt` usa la anotación de JetBrains (deprecada) y falla sin Koin.
+- Informe completo de la auditoría: `docs/AUDITORIA.md`.
+
 ## Reglas para el agente
 
 - Cambios pequeños, un tema por commit. Mensajes en formato Conventional Commits.
 - Antes de refactorizar, comprueba qué tests existen y ejecútalos; después, vuelve a ejecutarlos.
-- No toques `composeApp/schemas/` a mano (lo genera Room). El esquema `GasStationDatabase/1.json` está obsoleto; confirma con el usuario antes de borrarlo.
+- No toques `shared/schemas/` a mano (lo genera Room). El esquema `GasStationDatabase/1.json` está obsoleto; confirma con el usuario antes de borrarlo.
 - No subas `secrets.properties`, `local.properties`, keystores ni claves.
 - No actualices versiones en bloque; sigue `kmp-compose-upgrade` y comprueba la compatibilidad.
