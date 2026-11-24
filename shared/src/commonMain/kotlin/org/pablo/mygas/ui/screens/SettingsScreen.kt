@@ -18,6 +18,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -44,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.pablo.mygas.domain.models.FuelType
+import org.pablo.mygas.domain.models.ThemeMode
 import org.pablo.mygas.domain.models.UserPreferences
 import org.pablo.mygas.ui.components.label
 import org.pablo.mygas.ui.viewmodels.SettingsViewModel
@@ -116,6 +120,28 @@ fun SettingsScreen(
                         { Text(stringResource(Res.string.tank_capacity_error, UserPreferences.MIN_TANK_CAPACITY.toInt(), UserPreferences.MAX_TANK_CAPACITY.toInt())) }
                     } else null,
                 )
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(Res.string.theme_title), style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    ThemeMode.entries.forEachIndexed { index, mode ->
+                        SegmentedButton(
+                            selected = preferences.themeMode == mode,
+                            onClick = { viewModel.setThemeMode(mode) },
+                            shape = SegmentedButtonDefaults.itemShape(index, ThemeMode.entries.size),
+                        ) {
+                            Text(
+                                stringResource(
+                                    when (mode) {
+                                        ThemeMode.SYSTEM -> Res.string.theme_system
+                                        ThemeMode.LIGHT -> Res.string.theme_light
+                                        ThemeMode.DARK -> Res.string.theme_dark
+                                    }
+                                )
+                            )
+                        }
+                    }
+                }
             }
             Button(
                 onClick = {

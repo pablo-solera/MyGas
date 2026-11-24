@@ -3,6 +3,7 @@ package org.pablo.mygas.ui.viewmodels
 import com.russhwolf.settings.MapSettings
 import org.pablo.mygas.data.local.UserPreferencesRepositoryImpl
 import org.pablo.mygas.domain.models.FuelType
+import org.pablo.mygas.domain.models.ThemeMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -47,5 +48,16 @@ class SettingsViewModelTest {
         viewModel.setFavoriteFuel(FuelType.DIESEL)
 
         assertEquals(FuelType.DIESEL, viewModel.preferences.value.favoriteFuel)
+    }
+
+    @Test
+    fun themeModeIsPublishedAndPersisted() {
+        val settings = MapSettings()
+        val viewModel = SettingsViewModel(UserPreferencesRepositoryImpl(settings))
+
+        viewModel.setThemeMode(ThemeMode.DARK)
+
+        assertEquals(ThemeMode.DARK, viewModel.preferences.value.themeMode)
+        assertEquals(ThemeMode.DARK, UserPreferencesRepositoryImpl(settings).preferences.value.themeMode)
     }
 }

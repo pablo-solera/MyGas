@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.pablo.mygas.domain.models.FuelType
+import org.pablo.mygas.domain.models.ThemeMode
 import org.pablo.mygas.domain.models.UserPreferences
 import org.pablo.mygas.domain.repositories.UserPreferencesRepository
 
@@ -26,17 +27,26 @@ class UserPreferencesRepositoryImpl(
         _preferences.update { it.copy(tankCapacityLiters = capacity) }
     }
 
+    override fun setThemeMode(mode: ThemeMode) {
+        settings.putString(THEME_MODE_KEY, mode.name)
+        _preferences.update { it.copy(themeMode = mode) }
+    }
+
     private fun load(): UserPreferences {
         val fuel = settings.getStringOrNull(FAVORITE_FUEL_KEY)
             ?.let { value -> FuelType.entries.firstOrNull { it.name == value } }
             ?: FuelType.GASOLINE_95
         val capacity = settings.getDoubleOrNull(TANK_CAPACITY_KEY)
             ?.takeIf { it in UserPreferences.MIN_TANK_CAPACITY..UserPreferences.MAX_TANK_CAPACITY }
-        return UserPreferences(favoriteFuel = fuel, tankCapacityLiters = capacity)
+        val theme = settings.getStringOrNull(THEME_MODE_KEY)
+            ?.let { value -> ThemeMode.entries.firstOrNull { it.name == value } }
+            ?: ThemeMode.SYSTEM
+        return UserPreferences(favoriteFuel = fuel, tankCapacityLiters = capacity, themeMode = theme)
     }
 
     private companion object {
         const val FAVORITE_FUEL_KEY = "favorite_fuel"
         const val TANK_CAPACITY_KEY = "tank_capacity_liters"
+        const val THEME_MODE_KEY = "theme_mode"
     }
 }

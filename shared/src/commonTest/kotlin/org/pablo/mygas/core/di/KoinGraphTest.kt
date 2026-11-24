@@ -25,6 +25,7 @@ import org.pablo.mygas.ui.viewmodels.GasolineraFavoriteViewModel
 import org.pablo.mygas.ui.viewmodels.HomeViewModel
 import org.pablo.mygas.ui.viewmodels.MapViewModel
 import org.pablo.mygas.ui.viewmodels.SettingsViewModel
+import org.pablo.mygas.ui.viewmodels.ThemeViewModel
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
@@ -48,6 +49,7 @@ class KoinGraphTest {
             assertNotNull(koin.get<GasolineraDetailViewModel>())
             assertNotNull(koin.get<MapViewModel>())
             assertNotNull(koin.get<SettingsViewModel>())
+            assertNotNull(koin.get<ThemeViewModel>())
             assertNotNull(koin.get<GetMunicipalitiesUseCase>())
             assertNotNull(koin.get<GetStationsByMunicipalityUseCase>())
             assertNotNull(koin.get<GetStationUseCase>())

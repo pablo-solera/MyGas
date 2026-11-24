@@ -3,6 +3,7 @@ package org.pablo.mygas.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.StateFlow
 import org.pablo.mygas.domain.models.FuelType
+import org.pablo.mygas.domain.models.ThemeMode
 import org.pablo.mygas.domain.models.UserPreferences
 import org.pablo.mygas.domain.repositories.UserPreferencesRepository
 
@@ -13,6 +14,10 @@ class SettingsViewModel(
 
     fun setFavoriteFuel(fuelType: FuelType) {
         repository.setFavoriteFuel(fuelType)
+    }
+
+    fun setThemeMode(mode: ThemeMode) {
+        repository.setThemeMode(mode)
     }
 
     /** An empty input clears the capacity. Returns false when the input is not a valid capacity. */

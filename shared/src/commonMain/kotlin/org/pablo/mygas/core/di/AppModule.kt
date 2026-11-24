@@ -38,6 +38,7 @@ import org.pablo.mygas.ui.viewmodels.GasolineraFavoriteViewModel
 import org.pablo.mygas.ui.viewmodels.HomeViewModel
 import org.pablo.mygas.ui.viewmodels.MapViewModel
 import org.pablo.mygas.ui.viewmodels.SettingsViewModel
+import org.pablo.mygas.ui.viewmodels.ThemeViewModel
 
 val appModule = module {
     single<AppDatabase> { buildDatabase(get()) }
@@ -70,6 +71,7 @@ val viewModelsModule = module {
     viewModelOf(::GasolineraDetailViewModel)
     viewModelOf(::MapViewModel)
     viewModelOf(::SettingsViewModel)
+    viewModelOf(::ThemeViewModel)
 }
 
 val useCasesModule = module {

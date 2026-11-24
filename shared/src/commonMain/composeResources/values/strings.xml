@@ -37,6 +37,7 @@
     <string name="station_go_google_maps">Ir con Google Maps</string>
     <string name="station_opening_hours">Horario</string>
     <string name="station_other_fuels">Otros combustibles</string>
+    <string name="station_select_hint">Selecciona una gasolinera para ver su detalle</string>
 
     <!-- Fuels -->
     <string name="fuel_gasoline_95">Gasolina 95</string>
@@ -58,6 +59,10 @@
     <string name="tank_capacity_error">Introduce un valor entre %1$d y %2$d litros</string>
     <string name="save">Guardar cambios</string>
     <string name="saved">Cambios guardados</string>
+    <string name="theme_title">Apariencia</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
 
     <!-- Map -->
     <string name="map_search_here">Buscar en esta zona</string>

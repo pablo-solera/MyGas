@@ -2,6 +2,7 @@ package org.pablo.mygas.domain.repositories
 
 import kotlinx.coroutines.flow.StateFlow
 import org.pablo.mygas.domain.models.FuelType
+import org.pablo.mygas.domain.models.ThemeMode
 import org.pablo.mygas.domain.models.UserPreferences
 
 interface UserPreferencesRepository {
@@ -10,4 +11,6 @@ interface UserPreferencesRepository {
     fun setFavoriteFuel(fuelType: FuelType)
 
     fun setTankCapacityLiters(capacity: Double?)
+
+    fun setThemeMode(mode: ThemeMode)
 }

@@ -1,0 +1,86 @@
+<resources>
+    <string name="app_name">MyGas</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="nav_map">Map</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Home -->
+    <string name="home_title">Find the best price</string>
+    <string name="home_subtitle">Fuel prices near you</string>
+    <string name="select_province">Select a province</string>
+    <string name="select_town">Select a town</string>
+    <string name="home_pick_municipality">Pick a town to see its prices</string>
+    <string name="no_stations">No gas stations in this area</string>
+
+    <!-- Favorites -->
+    <string name="favorites_title">Your favorites</string>
+    <string name="no_favorites">No favorites yet</string>
+    <string name="no_favorites_hint">Save a gas station to see it here.</string>
+    <string name="add_favorite">Add to favorites</string>
+    <string name="remove_favorite">Remove from favorites</string>
+
+    <!-- Station -->
+    <string name="back">Back</string>
+    <string name="loading">Loading…</string>
+    <string name="open_maps">Start navigation</string>
+    <string name="prices_title">Prices</string>
+    <string name="station_schedule">Opening hours</string>
+    <string name="price_average">Average</string>
+    <string name="price_tank">Tank</string>
+    <string name="estimated_fill">Fill the tank</string>
+    <string name="price_unavailable">No data</string>
+    <string name="tank_capacity_hint">Set your tank capacity in Settings</string>
+    <string name="station_view_detail">View details</string>
+    <string name="station_go_google_maps">Go with Google Maps</string>
+    <string name="station_opening_hours">Opening hours</string>
+    <string name="station_other_fuels">Other fuels</string>
+    <string name="station_select_hint">Select a gas station to see its details</string>
+
+    <!-- Fuels -->
+    <string name="fuel_gasoline_95">Gasoline 95</string>
+    <string name="fuel_gasoline_98">Gasoline 98</string>
+    <string name="fuel_diesel">Diesel A</string>
+    <string name="fuel_diesel_premium">Premium diesel</string>
+    <string name="fuel_biodiesel">Biodiesel</string>
+    <string name="fuel_glp">LPG</string>
+    <string name="fuel_hvo">HVO</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_heading">Customize your prices</string>
+    <string name="settings_description">Choose the fuel you want to see first and calculate the cost of filling your tank.</string>
+    <string name="favorite_fuel">Favorite fuel</string>
+    <string name="change">Change</string>
+    <string name="tank_capacity">Tank capacity</string>
+    <string name="liters">liters</string>
+    <string name="tank_capacity_error">Enter a value between %1$d and %2$d liters</string>
+    <string name="save">Save changes</string>
+    <string name="saved">Changes saved</string>
+    <string name="theme_title">Appearance</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+
+    <!-- Map -->
+    <string name="map_search_here">Search this area</string>
+    <string name="map_zoom_in">Zoom in to see gas stations</string>
+    <string name="map_stations_found">%1$d gas stations in this area</string>
+    <string name="map_no_stations">No gas stations in this area</string>
+    <string name="map_attribution">© OpenStreetMap contributors</string>
+    <string name="map_zoom_in_button">Zoom in</string>
+    <string name="map_zoom_out_button">Zoom out</string>
+
+    <!-- Errors -->
+    <string name="retry">Retry</string>
+    <string name="error_network_generic">The data could not be loaded</string>
+    <string name="error_no_internet">No internet connection</string>
+    <string name="error_timeout">The request took too long</string>
+    <string name="error_server">The server is not available right now</string>
+    <string name="error_not_found">The information was not found</string>
+    <string name="error_too_many_requests">Too many requests, try again in a few minutes</string>
+    <string name="error_serialization">The received data is not valid</string>
+    <string name="error_unknown">An unexpected error occurred</string>
+</resources>
