@@ -108,7 +108,7 @@ Al tocar estas zonas, aprovecha para corregirlas, pero en cambios pequeños y ve
 2. **Ordenar capas** (sección anterior).
 3. **Mapa en iOS**: implementado con MapKit pero **sin compilar**. Falta verificarlo en macOS/CI y, cuando haya ubicación del usuario, añadir `NSLocationWhenInUseUsageDescription`.
 4. **Publicación en Google Play y App Store**: firma, `versionCode`/`CFBundleVersion`, política de Play, ficha de datos, `Info.plist` (hoy lista `armv7`), `TEAM_ID` vacío en `iosApp/Configuration/Config.xcconfig`. Usa `kmp-store-release` y `play-policy-insights`.
-5. **Ubicación del usuario** (FAB del mapa sin implementar): permisos en Android e iOS.
+5. **Ubicación del usuario** (aún no existe: el mapa no tiene botón de "mi ubicación"): permisos en Android e iOS y `LocationProvider` en `commonMain`.
 6. CI con GitHub Actions (no existe). Debe inyectar la clave de Maps como secreto.
 
 ## Skills instaladas (`.agents/skills/`)
@@ -141,6 +141,6 @@ Si dos skills se contradicen, prevalece este archivo. En particular, ignora cual
 
 - Cambios pequeños, un tema por commit. Mensajes en formato Conventional Commits.
 - Antes de refactorizar, comprueba qué tests existen y ejecútalos; después, vuelve a ejecutarlos.
-- No toques `shared/schemas/` a mano (lo genera Room). El esquema `GasStationDatabase/1.json` está obsoleto; confirma con el usuario antes de borrarlo.
+- No toques `shared/schemas/` a mano (lo genera Room). Cualquier cambio de `@Database` exige subir la versión y escribir migración.
 - No subas `secrets.properties`, `local.properties`, keystores ni claves.
 - No actualices versiones en bloque; sigue `kmp-compose-upgrade` y comprueba la compatibilidad.
