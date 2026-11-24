@@ -15,9 +15,11 @@ Antes, la pestaña Mapa de Desktop incrustaba un Chromium completo:
 
 Fallos que tenía: tras un error de init el mapa se componía roto, salir de la pestaña durante la descarga lo dejaba bloqueado para siempre, no había reintento, había una carrera entre la clave y la carga del WebView, y la clave quedaba en texto plano dentro del instalador.
 
-**Decisión aplicada:** quitar el mapa de Desktop. La pestaña se oculta y el botón del detalle abre Google Maps en el navegador del sistema. Se eliminaron KCEF, kmpmaps, BuildKonfig y la clave de Desktop. Si más adelante se quiere mapa en Desktop, la alternativa recomendada es un mapa de teselas OSM en Compose puro (MapCompose-MP), sin clave ni descarga. MapLibre en Desktop está en Alpha y exige Java 25.
+**Decisión aplicada:** se eliminaron KCEF, kmpmaps, BuildKonfig y la clave de Desktop, y se sustituyó por un mapa de teselas OpenStreetMap dibujado con Compose puro (`TileMap.kt`), sin clave ni descarga de Chromium. MapLibre en Desktop está en Alpha y exige Java 25, por eso se descartó.
 
 ## 2. Errores confirmados (prioridad alta)
+
+> **Estado:** corregidos M1-M8, N1-N4, U1-U6, C1-C3 en `feat(map)`; con tests en `MappersTest`, `MunicipioServiceTest`, `PrecioilGasStationAdapterTest`, `HomeViewModelTest`, `SettingsViewModelTest` y `KoinGraphTest`. C3 (iOS) sin verificar.
 
 | Id | Dónde | Problema |
 |---|---|---|

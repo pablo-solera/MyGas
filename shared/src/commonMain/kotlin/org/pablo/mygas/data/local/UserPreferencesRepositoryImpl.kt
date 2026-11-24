@@ -4,6 +4,7 @@ import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import org.pablo.mygas.domain.models.FuelType
 import org.pablo.mygas.domain.models.UserPreferences
 import org.pablo.mygas.domain.repositories.UserPreferencesRepository
@@ -16,13 +17,13 @@ class UserPreferencesRepositoryImpl(
 
     override fun setFavoriteFuel(fuelType: FuelType) {
         settings.putString(FAVORITE_FUEL_KEY, fuelType.name)
-        _preferences.value = _preferences.value.copy(favoriteFuel = fuelType)
+        _preferences.update { it.copy(favoriteFuel = fuelType) }
     }
 
     override fun setTankCapacityLiters(capacity: Double?) {
         if (capacity == null) settings.remove(TANK_CAPACITY_KEY)
         else settings.putDouble(TANK_CAPACITY_KEY, capacity)
-        _preferences.value = _preferences.value.copy(tankCapacityLiters = capacity)
+        _preferences.update { it.copy(tankCapacityLiters = capacity) }
     }
 
     private fun load(): UserPreferences {
@@ -30,14 +31,12 @@ class UserPreferencesRepositoryImpl(
             ?.let { value -> FuelType.entries.firstOrNull { it.name == value } }
             ?: FuelType.GASOLINE_95
         val capacity = settings.getDoubleOrNull(TANK_CAPACITY_KEY)
-            ?.takeIf { it in MIN_TANK_CAPACITY..MAX_TANK_CAPACITY }
+            ?.takeIf { it in UserPreferences.MIN_TANK_CAPACITY..UserPreferences.MAX_TANK_CAPACITY }
         return UserPreferences(favoriteFuel = fuel, tankCapacityLiters = capacity)
     }
 
     private companion object {
         const val FAVORITE_FUEL_KEY = "favorite_fuel"
         const val TANK_CAPACITY_KEY = "tank_capacity_liters"
-        const val MIN_TANK_CAPACITY = 1.0
-        const val MAX_TANK_CAPACITY = 200.0
     }
 }

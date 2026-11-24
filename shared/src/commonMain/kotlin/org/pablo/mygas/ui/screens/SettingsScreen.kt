@@ -24,7 +24,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import org.pablo.mygas.core.utils.formatDecimal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,12 +50,12 @@ import org.pablo.mygas.ui.viewmodels.SettingsViewModel
 fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
-    val preferences by viewModel.preferences.collectAsState()
-    var capacity by remember(preferences.tankCapacityLiters) {
-        mutableStateOf(preferences.tankCapacityLiters?.toString().orEmpty())
+    val preferences by viewModel.preferences.collectAsStateWithLifecycle()
+    var capacity by rememberSaveable {
+        mutableStateOf(preferences.tankCapacityLiters?.let { formatDecimal(it, 1).removeSuffix(",0") }.orEmpty())
     }
-    var expanded by remember { mutableStateOf(false) }
-    var capacityError by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    var capacityError by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -58,7 +64,7 @@ fun SettingsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         Column(
-            modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(24.dp),
+            modifier = Modifier.padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             Text("Personaliza tus precios", style = androidx.compose.material3.MaterialTheme.typography.headlineSmall)
@@ -99,6 +105,7 @@ fun SettingsScreen(
                     onValueChange = { capacity = it; capacityError = false },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
                     isError = capacityError,
                     suffix = { Text("litros") },
                     supportingText = if (capacityError) {

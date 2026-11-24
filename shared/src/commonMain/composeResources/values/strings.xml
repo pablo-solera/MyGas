@@ -22,4 +22,16 @@
     <string name="estimated_fill">Llenar el depósito</string>
     <string name="price_unavailable">Precio no disponible</string>
     <string name="location_soon">La ubicación estará disponible próximamente</string>
+    <string name="map_search_here">Buscar en esta zona</string>
+    <string name="map_zoom_in">Acerca el mapa para ver gasolineras</string>
+    <string name="map_stations_found">%1$d gasolineras en esta zona</string>
+    <string name="map_no_stations">No hay gasolineras en esta zona</string>
+    <string name="map_attribution">© colaboradores de OpenStreetMap</string>
+    <string name="map_zoom_in_button">Acercar</string>
+    <string name="map_zoom_out_button">Alejar</string>
+    <string name="station_view_detail">Ver detalle</string>
+    <string name="station_go_google_maps">Ir con Google Maps</string>
+    <string name="station_opening_hours">Horario</string>
+    <string name="station_other_fuels">Otros combustibles</string>
+    <string name="error_network_generic">No se han podido cargar los datos</string>
 </resources>

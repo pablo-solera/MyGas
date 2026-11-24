@@ -13,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.pablo.mygas.core.utils.toEuroText
+import org.pablo.mygas.core.utils.toLiterPriceText
 import org.pablo.mygas.domain.models.GasStation
 import org.pablo.mygas.domain.models.FuelType
 import org.pablo.mygas.domain.models.displayName
@@ -37,7 +39,7 @@ fun GasStationPrices(
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = gasStation.fuels.priceFor(favoriteFuel).price?.let { "$it €/l" } ?: "Sin datos",
+                text = gasStation.fuels.priceFor(favoriteFuel).price?.takeIf { it > 0.0 }?.toLiterPriceText() ?: "Sin datos",
                 style = MaterialTheme.typography.titleLarge
             )
         }
@@ -53,7 +55,7 @@ fun GasStationPrices(
             )
             Text(
                 text = tankCapacityLiters?.let { liters ->
-                    gasStation.fuels.priceFor(favoriteFuel).price?.let { "${it * liters} €" } ?: "Sin datos"
+                    gasStation.fuels.priceFor(favoriteFuel).price?.takeIf { it > 0.0 }?.let { (it * liters).toEuroText() } ?: "Sin datos"
                 } ?: "Configura la capacidad en Ajustes",
                 style = MaterialTheme.typography.titleLarge
             )

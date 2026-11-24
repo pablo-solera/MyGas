@@ -24,134 +24,46 @@ fun PrecioilGasStationResponse.toDomain(): GasStation {
         openingHours = horario,
         lastUpdate = lastUpdate,
         fuels = FuelPrices(
-            gasoline95 = FuelPrice(
-                price = gasolina95.toSafeDouble(),
-                averagePrice = gasolina95Media.toSafeDouble()
-            ),
-            gasoline98 = FuelPrice(
-                price = gasolina98.toSafeDouble(),
-                averagePrice = gasolina98Media.toSafeDouble()
-            ),
-            diesel = FuelPrice(
-                price = diesel.toSafeDouble(),
-                averagePrice = dieselMedia.toSafeDouble()
-            ),
-            dieselPremium = FuelPrice(
-                price = dieselPremium.toSafeDouble(),
-                averagePrice = dieselPremiumMedia.toSafeDouble()
-            ),
-            biodiesel = FuelPrice(
-                averagePrice = dieselBMedia.toSafeDouble(),
-                price = dieselBMedia.toSafeDouble()
-            ),
-            glp = FuelPrice(
-                averagePrice = glpMedia.toSafeDouble(),
-                price = glp.toSafeDouble()
-            ),
-            hvo = FuelPrice(
-                averagePrice = hvoMedia.toSafeDouble(),
-                price = hvo.toSafeDouble()
-            )
+            gasoline95 = FuelPrice(gasolina95.toSafeDouble(), gasolina95Media.toSafeDouble()),
+            gasoline98 = FuelPrice(gasolina98.toSafeDouble(), gasolina98Media.toSafeDouble()),
+            diesel = FuelPrice(diesel.toSafeDouble(), dieselMedia.toSafeDouble()),
+            dieselPremium = FuelPrice(dieselPremium.toSafeDouble(), dieselPremiumMedia.toSafeDouble()),
+            biodiesel = FuelPrice(price = null, averagePrice = dieselBMedia.toSafeDouble()),
+            glp = FuelPrice(glp.toSafeDouble(), glpMedia.toSafeDouble()),
+            hvo = FuelPrice(hvo.toSafeDouble(), hvoMedia.toSafeDouble()),
         ),
     )
 }
 
-fun GovernmentGasStationResponse.toDomain(): GasStation {
-    return GasStation(
-        id = IDEESS.toInt(),
-        name = rotulo,
-        brand = rotulo,
-        address = Dirección,
-        postalCode = cp,
-        town = Municipio,
-        province = Provincia,
-        location = GeoLocation(
-            latitude = Latitud.toSafeDouble() ?: 0.0,
-            longitude = longitud.toSafeDouble() ?: 0.0
-        ),
-        openingHours = Horario,
-        lastUpdate = "",
-        fuels = FuelPrices(
-            gasoline95 = FuelPrice(
-                price = precioGasolina95E5.toSafeDouble(),
-                averagePrice = precioGasolina95E5.toSafeDouble()
-            ),
-            gasoline98 = FuelPrice(
-                price = precioGasolina98E5.toSafeDouble(),
-                averagePrice = precioGasolina98E5.toSafeDouble()
-            ),
-            diesel = FuelPrice(
-                price = precioGasoleoA.toSafeDouble(),
-                averagePrice = precioGasoleoA.toSafeDouble()
-            ),
-            dieselPremium = FuelPrice(
-                price = 0.0,
-                averagePrice = 0.0
-            ),
-            biodiesel = FuelPrice(
-                price = 0.0,
-                averagePrice = 0.0
-            ),
-            glp = FuelPrice(
-                price = 0.0,
-                averagePrice = 0.0
-            ),
-            hvo = FuelPrice(
-                price = 0.0,
-                averagePrice = 0.0
-            )
-        ),
-    )
-}
-
-
-fun GasStationEntity.toDomain(): GasStation {
+fun GovernmentGasStationResponse.toDomainOrNull(): GasStation? {
+    val id = stationId.trim().toIntOrNull() ?: return null
     return GasStation(
         id = id,
-        name = "",
-        brand = "",
-        address = "",
-        postalCode = "",
-        town = "",
-        province = "",
+        name = label,
+        brand = label,
+        address = address,
+        postalCode = postalCode,
+        town = locality,
+        province = province,
         location = GeoLocation(
-            latitude = 0.0,
-            longitude = 0.0
+            latitude = latitude.toSafeDouble() ?: 0.0,
+            longitude = longitude.toSafeDouble() ?: 0.0
         ),
-        openingHours = "",
+        openingHours = openingHours,
         lastUpdate = "",
         fuels = FuelPrices(
-            gasoline95 = FuelPrice(
-                price = 0.0,
-                averagePrice = 0.0
-            ),
-            gasoline98 = FuelPrice(
-                price = 0.0,
-                averagePrice = 0.0
-            ),
-            diesel = FuelPrice(
-                price = 0.0,
-                averagePrice = 0.0
-            ),
-            dieselPremium = FuelPrice(
-                price = 0.0,
-                averagePrice = 0.0
-            ),
-            biodiesel = FuelPrice(
-                averagePrice = 0.0,
-                price = 0.0
-            ),
-            glp = FuelPrice(
-                averagePrice = 0.0,
-                price = 0.0
-            ),
-            hvo = FuelPrice(
-                averagePrice = 0.0,
-                price = 0.0
-            )
-        )
+            gasoline95 = FuelPrice(priceGasoline95E5.toSafeDouble() ?: priceGasoline95E10.toSafeDouble(), null),
+            gasoline98 = FuelPrice(priceGasoline98E5.toSafeDouble() ?: priceGasoline98E10.toSafeDouble(), null),
+            diesel = FuelPrice(priceDiesel.toSafeDouble(), null),
+            dieselPremium = FuelPrice(priceDieselPremium.toSafeDouble(), null),
+            biodiesel = FuelPrice(priceBiodiesel.toSafeDouble(), null),
+            glp = FuelPrice(priceGlp.toSafeDouble(), null),
+            hvo = FuelPrice.EMPTY,
+        ),
     )
 }
+
+fun List<GovernmentGasStationResponse>.toDomain(): List<GasStation> = mapNotNull { it.toDomainOrNull() }
 
 fun GasStation.toEntity(): GasStationEntity {
     return GasStationEntity(
@@ -159,10 +71,16 @@ fun GasStation.toEntity(): GasStationEntity {
     )
 }
 
+/**
+ * Parses numbers coming from the Spanish ministry: decimal comma, and optionally
+ * a dot as thousands separator ("1.459,5"). Returns null for blank or invalid values.
+ */
 fun String?.toSafeDouble(): Double? {
-    return this
-        ?.replace(",", ".")
-        ?.trim()
-        ?.takeIf { it.isNotBlank() }
-        ?.toDoubleOrNull()
+    val trimmed = this?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+    val normalized = if (',' in trimmed) {
+        trimmed.replace(".", "").replace(',', '.')
+    } else {
+        trimmed
+    }
+    return normalized.toDoubleOrNull()?.takeIf { it.isFinite() }
 }

@@ -22,6 +22,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import org.pablo.mygas.core.utils.GasStationImage
+import org.pablo.mygas.core.utils.NO_PRICE
+import org.pablo.mygas.core.utils.toEuroText
+import org.pablo.mygas.core.utils.toLiterPriceText
 import org.pablo.mygas.domain.models.GasStation
 import org.pablo.mygas.domain.models.FuelType
 import org.pablo.mygas.domain.models.displayName
@@ -100,7 +103,7 @@ fun GasStationItem(
                     modifier = Modifier.weight(1f),
                     label = "Depósito",
                     price = tankCapacityLiters?.let { gasStation.fuels.priceFor(favoriteFuel).price?.times(it) },
-                    suffix = if (tankCapacityLiters == null) "" else " €"
+                    isTotal = true,
                 )
             }
         }
@@ -111,7 +114,7 @@ fun GasStationItem(
 private fun FuelPriceItem(
     label: String,
     price: Double?,
-    suffix: String = " €/l",
+    isTotal: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -127,7 +130,7 @@ private fun FuelPriceItem(
             overflow = TextOverflow.Ellipsis
         )
         Text(
-            text = price.toPriceText(suffix),
+            text = price.toDisplayText(isTotal),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
@@ -136,10 +139,8 @@ private fun FuelPriceItem(
     }
 }
 
-private fun Double?.toPriceText(suffix: String): String {
-    return if (this == null || this <= 0.0) {
-        "-- €/l"
-    } else {
-        this.toString() + suffix
-    }
+private fun Double?.toDisplayText(isTotal: Boolean): String = when {
+    this == null || this <= 0.0 -> if (isTotal) NO_PRICE else "$NO_PRICE €/l"
+    isTotal -> toEuroText()
+    else -> toLiterPriceText()
 }

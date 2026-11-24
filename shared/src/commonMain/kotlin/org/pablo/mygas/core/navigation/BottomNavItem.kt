@@ -8,7 +8,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
 
-sealed class BottomNavItem<T>(val route: T, val icon: ImageVector, val label: String) {
+sealed class BottomNavItem<T : Any>(val route: T, val icon: ImageVector, val label: String) {
     data object Home : BottomNavItem<HomeGraph>(HomeGraph, Icons.Default.Home, "Inicio")
     data object Favorite :
         BottomNavItem<FavoriteGraph>(FavoriteGraph, Icons.Default.Favorite, "Favoritos")

@@ -10,37 +10,37 @@ data class PrecioilGasStationResponse(
     val idEstacion: Int,
 
     @SerialName("nombreEstacion")
-    val nombreEstacion: String,
+    val nombreEstacion: String = "",
 
     @SerialName("longitud")
-    val longitud: String,
+    val longitud: String = "",
 
     @SerialName("latitud")
-    val latitud: String,
+    val latitud: String = "",
 
     @SerialName("margen")
-    val margen: String,
+    val margen: String = "",
 
     @SerialName("codPostal")
-    val codPostal: String,
+    val codPostal: String = "",
 
     @SerialName("direccion")
-    val direccion: String,
+    val direccion: String = "",
 
     @SerialName("horario")
-    val horario: String,
+    val horario: String = "",
 
     @SerialName("tipoVenta")
-    val tipoVenta: String,
+    val tipoVenta: String = "",
 
     @SerialName("idMunicipio")
     val idMunicipio: Int,
 
     @SerialName("lastUpdate")
-    val lastUpdate: String,
+    val lastUpdate: String = "",
 
     @SerialName("localidad")
-    val localidad: String,
+    val localidad: String = "",
 
     @SerialName("Gasolina95")
     val gasolina95: String? = null,
@@ -76,13 +76,13 @@ data class PrecioilGasStationResponse(
     val glpMedia: String? = null,
 
     @SerialName("provincia")
-    val provincia: String,
+    val provincia: String = "",
 
     @SerialName("provinciaDistrito")
-    val provinciaDistrito: String,
+    val provinciaDistrito: String = "",
 
     @SerialName("marca")
-    val marca: String,
+    val marca: String = "",
 
     @SerialName("HVO_media")
     val hvoMedia: String? = null,

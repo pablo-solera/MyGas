@@ -3,10 +3,12 @@ package org.pablo.mygas.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -17,36 +19,39 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.clustering.ClusterItem
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.clustering.Clustering
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberUpdatedMarkerState
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.pablo.mygas.core.utils.GasStationImage
+import org.pablo.mygas.core.utils.toShortPriceText
 import org.pablo.mygas.domain.models.FuelPrice
+import org.pablo.mygas.domain.models.map.MapBounds
 import org.pablo.mygas.domain.models.map.MapCoordinate
 import org.pablo.mygas.domain.models.map.MapProperties
 import org.pablo.mygas.domain.models.map.MapState
 import org.pablo.mygas.domain.models.map.MapType
+import org.pablo.mygas.domain.models.map.MapViewport
 
 @Composable
 private fun MapMarkerPin(
@@ -54,7 +59,7 @@ private fun MapMarkerPin(
     fuelPrice: FuelPrice?,
     isSelected: Boolean,
 ) {
-    val price = fuelPrice?.price?.toString() ?: "-"
+    val price = fuelPrice?.price.toShortPriceText()
     val borderWidth = if (isSelected) 2.dp else 1.dp
     val borderColor = if (isSelected) {
         MaterialTheme.colorScheme.primary
@@ -125,7 +130,23 @@ private fun MapMarkerPin(
     }
 }
 
+@Composable
+private fun ClusterBubble(count: Int) {
+    Surface(
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        shadowElevation = 4.dp,
+        modifier = Modifier.size(40.dp),
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(text = count.toString(), style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+
 class CustomMarker(
+    val id: String,
     override val position: LatLng,
     override val title: String,
     override val snippet: String,
@@ -142,11 +163,11 @@ actual fun Map(
     modifier: Modifier,
     state: MapState,
     properties: MapProperties,
+    onViewportChanged: (MapViewport) -> Unit,
+    onMarkerClick: (String) -> Unit,
     onMapClick: (MapCoordinate) -> Unit,
-    onMapLongClick: (MapCoordinate) -> Unit,
-    content: @Composable (() -> Unit)
 ) {
-
+    val scope = rememberCoroutineScope()
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             LatLng(state.cameraPosition.coordinates.latitude, state.cameraPosition.coordinates.longitude),
@@ -154,9 +175,14 @@ actual fun Map(
         )
     }
     var mapLoaded by remember { mutableStateOf(false) }
-    val adaptedMarkers = remember(state.markers) {
+    val currentOnViewportChanged by rememberUpdatedState(onViewportChanged)
+    val currentOnMarkerClick by rememberUpdatedState(onMarkerClick)
+    val currentOnMapClick by rememberUpdatedState(onMapClick)
+
+    val clusterItems = remember(state.markers) {
         state.markers.map { marker ->
             CustomMarker(
+                id = marker.id,
                 position = LatLng(marker.position.latitude, marker.position.longitude),
                 title = marker.title ?: marker.brand,
                 snippet = "",
@@ -167,20 +193,24 @@ actual fun Map(
         }
     }
 
-    LaunchedEffect(state.markers, mapLoaded) {
-        if (!mapLoaded || state.markers.isEmpty()) return@LaunchedEffect
-        val positions = state.markers.map { marker ->
-            LatLng(marker.position.latitude, marker.position.longitude)
-        }
-        if (positions.size == 1) {
-            cameraPositionState.animate(
-                CameraUpdateFactory.newLatLngZoom(positions.single(), 13f)
+    LaunchedEffect(mapLoaded, cameraPositionState) {
+        if (!mapLoaded) return@LaunchedEffect
+        snapshotFlow { cameraPositionState.isMoving }.collect { moving ->
+            if (moving) return@collect
+            val visible = cameraPositionState.projection?.visibleRegion?.latLngBounds ?: return@collect
+            val camera = cameraPositionState.position
+            currentOnViewportChanged(
+                MapViewport(
+                    center = MapCoordinate(camera.target.latitude, camera.target.longitude),
+                    zoom = camera.zoom,
+                    bounds = MapBounds(
+                        south = visible.southwest.latitude,
+                        west = visible.southwest.longitude,
+                        north = visible.northeast.latitude,
+                        east = visible.northeast.longitude,
+                    ),
+                )
             )
-        } else {
-            val bounds = LatLngBounds.builder().apply {
-                positions.forEach(::include)
-            }.build()
-            cameraPositionState.animate(CameraUpdateFactory.newLatLngBounds(bounds, 80))
         }
     }
 
@@ -207,11 +237,23 @@ actual fun Map(
             mapToolbarEnabled = state.settings.mapToolbarEnabled
         ),
         onMapLoaded = { mapLoaded = true },
-        onMapClick = { onMapClick(MapCoordinate(it.latitude, it.longitude)) },
-        onMapLongClick = { onMapLongClick(MapCoordinate(it.latitude, it.longitude)) }
-    )
-    {
+        onMapClick = { currentOnMapClick(MapCoordinate(it.latitude, it.longitude)) },
+    ) {
         Clustering(
+            items = clusterItems,
+            onClusterItemClick = { item ->
+                currentOnMarkerClick(item.id)
+                true
+            },
+            onClusterClick = { cluster ->
+                val bounds = LatLngBounds.builder().apply {
+                    cluster.items.forEach { include(it.position) }
+                }.build()
+                scope.launch {
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLngBounds(bounds, 120))
+                }
+                true
+            },
             clusterItemContent = { marker ->
                 MapMarkerPin(
                     brand = marker.brand,
@@ -219,33 +261,7 @@ actual fun Map(
                     isSelected = marker.isSelected
                 )
             },
-            clusterContent = { cluster ->
-                val firstMarker = cluster.items.firstOrNull()
-                MapMarkerPin(
-                    brand = firstMarker?.brand ?: "Cluster",
-                    fuelPrice = firstMarker?.fuelPrice,
-                    isSelected = firstMarker?.isSelected == true
-                )
-            },
-            items = adaptedMarkers,
+            clusterContent = { cluster -> ClusterBubble(cluster.size) },
         )
-
-//            state.markers.map { marker ->
-//                MarkerComposable(
-//                    state = rememberUpdatedMarkerState(
-//                        position = LatLng(marker.position.latitude, marker.position.longitude)
-//                    ),
-//                    title = marker.title,
-//                    anchor = Offset(0.5f, 1f)
-//                ) {
-//                    MapMarkerPin(
-//                        brand = marker.brand,
-//                        fuelPrice = marker.fuelPrice,
-//                        isSelected = marker.isSelected
-//                    )
-//                }
-//            }
-
-
     }
 }

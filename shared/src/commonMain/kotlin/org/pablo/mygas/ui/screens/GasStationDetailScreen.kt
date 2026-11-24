@@ -69,25 +69,16 @@ fun GasStationDetailScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        state.isFavorite?.let { isFavorite ->
-                            if (isFavorite) {
-                                viewModel.removeGasStationId(gasStationId)
-                            } else {
-                                viewModel.insertGasStationId(gasStationId)
-                            }
-
+                        if (state.isFavorite) {
+                            viewModel.removeGasStationId(gasStationId)
+                        } else {
+                            viewModel.insertGasStationId(gasStationId)
                         }
                     }) {
-                        state.isFavorite?.let { isFavorite ->
-
-                            Icon(
-                                imageVector = if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                                contentDescription = if (isFavorite) "Quitar de favoritas" else "Añadir a favoritas"
-                            )
-
-                        }
-
-
+                        Icon(
+                            imageVector = if (state.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                            contentDescription = if (state.isFavorite) "Quitar de favoritas" else "Añadir a favoritas"
+                        )
                     }
                 }
             )
@@ -96,15 +87,13 @@ fun GasStationDetailScreen(
             if (mapNavigationAvailable) {
             FloatingActionButton(
                 onClick = {
-                    try {
-                        state.gasStation?.let { gasStation ->
+                    (state.loadState as? Loadable.Content)?.value?.let { gasStation ->
+                        if (gasStation.hasValidLocation) {
                             MapOpener().openMapActivity(
                                 gasStation.location.latitude.toString(),
                                 gasStation.location.longitude.toString()
                             )
                         }
-                        //MapOpener().openMapActivity(gasolinera.Latitud, gasolinera.longitud)
-                    } catch (_: Exception) {
                     }
                 }
             ) {

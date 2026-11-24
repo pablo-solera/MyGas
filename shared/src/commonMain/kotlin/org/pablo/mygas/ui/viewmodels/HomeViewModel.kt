@@ -2,8 +2,8 @@ package org.pablo.mygas.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,13 +14,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.pablo.mygas.core.utils.Provincia
 import org.pablo.mygas.core.utils.Result
-import org.pablo.mygas.core.state.SelectedMunicipalityStore
 import org.pablo.mygas.data.remote.MunicipioItem
 import org.pablo.mygas.data.toDomain
 import org.pablo.mygas.domain.models.GasStation
+import org.pablo.mygas.domain.models.withAveragePrices
 import org.pablo.mygas.domain.usecases.GetAllGasolinerasByMunicipioUseCase
 import org.pablo.mygas.domain.usecases.GetAllMunicipiosByProvinciaUseCase
-import org.pablo.mygas.domain.usecases.GetGasolineraByIdUseCase
 import org.pablo.mygas.ui.state.Loadable
 
 data class HomeState(
@@ -32,17 +31,14 @@ data class HomeState(
     val isGasStationsLoading: Boolean = false,
     val municipios: List<MunicipioItem>? = null,
     val gasStations: List<GasStation>? = null,
-    val gasStation: GasStation? = null,
     val municipiosState: Loadable<List<MunicipioItem>> = Loadable.Idle,
     val gasStationsState: Loadable<List<GasStation>> = Loadable.Idle,
 )
 
 class HomeViewModel(
-    val getAllGasolinerasByMunicipioUseCase: GetAllGasolinerasByMunicipioUseCase,
-    val getAllMunicipiosByProvinciaUseCase: GetAllMunicipiosByProvinciaUseCase,
-    val getGasolineraByIdUseCase: GetGasolineraByIdUseCase,
+    private val getAllGasolinerasByMunicipioUseCase: GetAllGasolinerasByMunicipioUseCase,
+    private val getAllMunicipiosByProvinciaUseCase: GetAllMunicipiosByProvinciaUseCase,
     private val cpuDispatcher: CoroutineDispatcher = Dispatchers.Default,
-    private val selectionStore: SelectedMunicipalityStore,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -61,25 +57,23 @@ class HomeViewModel(
 
         municipiosJob?.cancel()
         gasStationsJob?.cancel()
-        selectionStore.clear()
         val request = ++provinciaRequest
         ++gasStationsRequest
+        _uiState.update { currentState ->
+            currentState.copy(
+                provincia = provincia,
+                municipio = "",
+                municipioId = null,
+                municipios = null,
+                gasStations = null,
+                municipiosState = Loadable.Loading,
+                gasStationsState = Loadable.Idle,
+                isLoading = true,
+                isMunicipiosLoading = true,
+                isGasStationsLoading = false
+            )
+        }
         municipiosJob = viewModelScope.launch {
-            _uiState.update { currentState ->
-                currentState.copy(
-                    provincia = provincia,
-                    municipio = "",
-                    municipioId = null,
-                    municipios = null,
-                    gasStations = null,
-                    municipiosState = Loadable.Loading,
-                    gasStationsState = Loadable.Idle,
-                    isLoading = true,
-                    isMunicipiosLoading = true,
-                    isGasStationsLoading = false
-                )
-            }
-
             when (val result = getAllMunicipiosByProvinciaUseCase(provincia.id)) {
                 is Result.Success -> {
                     val municipios = withContext(cpuDispatcher) {
@@ -116,22 +110,26 @@ class HomeViewModel(
 
         gasStationsJob?.cancel()
         val request = ++gasStationsRequest
+        _uiState.update { currentState ->
+            currentState.copy(
+                municipioId = municipioId,
+                municipio = currentState.municipios?.find {
+                    it.idMunicipio == municipioId.toString()
+                }?.municipio ?: "",
+                gasStations = null,
+                isLoading = true,
+                gasStationsState = Loadable.Loading,
+                isMunicipiosLoading = false,
+                isGasStationsLoading = true
+            )
+        }
         gasStationsJob = viewModelScope.launch {
-            _uiState.update { currentState ->
-                currentState.copy(
-                    isLoading = true,
-                    gasStationsState = Loadable.Loading,
-                    isMunicipiosLoading = false,
-                    isGasStationsLoading = true
-                )
-            }
-
             when (val result = getAllGasolinerasByMunicipioUseCase(municipioId)) {
                 is Result.Success -> {
                     val stations = withContext(cpuDispatcher) {
-                        result.data.ListaEESSPrecio.map { it.toDomain() }.sortedBy {
-                            it.fuels.gasoline95.price
-                        }
+                        result.data.stations.toDomain()
+                            .withAveragePrices()
+                            .sortedWith(compareBy(nullsLast()) { it.fuels.gasoline95.price })
                     }
                     ensureActive()
                     if (request != gasStationsRequest) return@launch
@@ -139,15 +137,10 @@ class HomeViewModel(
                         currentState.copy(
                             gasStations = stations,
                             gasStationsState = Loadable.Content(stations),
-                            municipioId = municipioId,
-                            municipio = currentState.municipios?.find {
-                                it.idMunicipio == municipioId.toString()
-                            }?.municipio ?: "",
                             isLoading = currentState.isMunicipiosLoading,
                             isGasStationsLoading = false,
                         )
                     }
-                    selectionStore.updateStations(municipioId, stations)
                 }
 
                 is Result.Error -> {
@@ -164,9 +157,14 @@ class HomeViewModel(
         }
     }
 
-    fun retryMunicipios() = selectProvincia(_uiState.value.provincia)
+    fun retryMunicipios() {
+        _uiState.update { it.copy(municipios = null) }
+        selectProvincia(_uiState.value.provincia)
+    }
 
     fun retryGasolineras() {
-        _uiState.value.municipioId?.let(::getGasolinerasByMunicipio)
+        val id = _uiState.value.municipioId ?: return
+        _uiState.update { it.copy(gasStations = null) }
+        getGasolinerasByMunicipio(id)
     }
 }

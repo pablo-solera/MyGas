@@ -1,11 +1,7 @@
 package org.pablo.mygas.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import org.pablo.mygas.domain.models.FuelType
 import org.pablo.mygas.domain.models.UserPreferences
 import org.pablo.mygas.domain.repositories.UserPreferencesRepository
@@ -16,18 +12,19 @@ class SettingsViewModel(
     val preferences: StateFlow<UserPreferences> = repository.preferences
 
     fun setFavoriteFuel(fuelType: FuelType) {
-        viewModelScope.launch(Dispatchers.IO) { repository.setFavoriteFuel(fuelType) }
+        repository.setFavoriteFuel(fuelType)
     }
 
+    /** An empty input clears the capacity. Returns false when the input is not a valid capacity. */
     fun saveTankCapacity(input: String): Boolean {
+        if (input.isBlank()) {
+            repository.setTankCapacityLiters(null)
+            return true
+        }
         val capacity = input.trim().replace(',', '.').toDoubleOrNull()
-            ?.takeIf { it in 1.0..200.0 }
+            ?.takeIf { it in UserPreferences.MIN_TANK_CAPACITY..UserPreferences.MAX_TANK_CAPACITY }
             ?: return false
-        viewModelScope.launch(Dispatchers.IO) { repository.setTankCapacityLiters(capacity) }
+        repository.setTankCapacityLiters(capacity)
         return true
-    }
-
-    fun clearTankCapacity() {
-        viewModelScope.launch(Dispatchers.IO) { repository.setTankCapacityLiters(null) }
     }
 }

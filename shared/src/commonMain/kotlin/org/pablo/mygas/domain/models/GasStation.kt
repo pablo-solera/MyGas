@@ -12,4 +12,8 @@ data class GasStation(
     val openingHours: String,
     val lastUpdate: String,
     val fuels: FuelPrices,
-)
+) {
+    val hasValidLocation: Boolean
+        get() = location.latitude.isFinite() && location.longitude.isFinite() &&
+            (location.latitude != 0.0 || location.longitude != 0.0)
+}

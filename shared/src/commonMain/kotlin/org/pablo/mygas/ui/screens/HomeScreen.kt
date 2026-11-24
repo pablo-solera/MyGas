@@ -80,7 +80,9 @@ fun HomeScreen(
                     selectedText = state.municipio,
                     label = "Selecciona un municipio",
                     itemText = { municipio -> municipio.municipio },
-                    onValueChange = { viewModel.getGasolinerasByMunicipio(it.idMunicipio.toInt()) }
+                    onValueChange = { municipio ->
+                        municipio.idMunicipio.toIntOrNull()?.let(viewModel::getGasolinerasByMunicipio)
+                    }
                 )
                 is Loadable.Failed -> ErrorState(municipiosState.error, viewModel::retryMunicipios)
                 else -> Unit
