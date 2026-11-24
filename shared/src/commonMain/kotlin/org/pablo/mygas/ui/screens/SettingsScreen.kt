@@ -1,5 +1,7 @@
 package org.pablo.mygas.ui.screens
 
+import org.jetbrains.compose.resources.stringResource
+import org.pablo.mygas.resources.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,7 +44,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import org.pablo.mygas.domain.models.FuelType
-import org.pablo.mygas.domain.models.displayName
+import org.pablo.mygas.domain.models.UserPreferences
+import org.pablo.mygas.ui.components.label
 import org.pablo.mygas.ui.viewmodels.SettingsViewModel
 
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
@@ -57,35 +60,36 @@ fun SettingsScreen(
     var expanded by rememberSaveable { mutableStateOf(false) }
     var capacityError by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val savedMessage = stringResource(Res.string.saved)
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Ajustes") }) },
+        topBar = { TopAppBar(title = { Text(stringResource(Res.string.settings_title)) }) },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         Column(
             modifier = Modifier.padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            Text("Personaliza tus precios", style = androidx.compose.material3.MaterialTheme.typography.headlineSmall)
+            Text(stringResource(Res.string.settings_heading), style = androidx.compose.material3.MaterialTheme.typography.headlineSmall)
             Text(
-                "Elige el combustible que quieres ver primero y calcula el coste de llenar tu depósito.",
+                stringResource(Res.string.settings_description),
                 color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Combustible favorito", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+                Text(stringResource(Res.string.favorite_fuel), style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
                 androidx.compose.foundation.layout.Box {
                     OutlinedTextField(
-                        value = preferences.favoriteFuel.displayName,
+                        value = preferences.favoriteFuel.label(),
                         onValueChange = {},
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth(),
-                        trailingIcon = { TextButton(onClick = { expanded = true }) { Text("Cambiar") } },
+                        trailingIcon = { TextButton(onClick = { expanded = true }) { Text(stringResource(Res.string.change)) } },
                     )
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         FuelType.entries.forEach { fuel ->
                             DropdownMenuItem(
-                                text = { Text(fuel.displayName) },
+                                text = { Text(fuel.label()) },
                                 onClick = {
                                     viewModel.setFavoriteFuel(fuel)
                                     expanded = false
@@ -99,7 +103,7 @@ fun SettingsScreen(
                 }
             }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Capacidad del depósito", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+                Text(stringResource(Res.string.tank_capacity), style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
                 OutlinedTextField(
                     value = capacity,
                     onValueChange = { capacity = it; capacityError = false },
@@ -107,9 +111,9 @@ fun SettingsScreen(
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
                     isError = capacityError,
-                    suffix = { Text("litros") },
+                    suffix = { Text(stringResource(Res.string.liters)) },
                     supportingText = if (capacityError) {
-                        { Text("Introduce un valor entre 1 y 200 litros") }
+                        { Text(stringResource(Res.string.tank_capacity_error, UserPreferences.MIN_TANK_CAPACITY.toInt(), UserPreferences.MAX_TANK_CAPACITY.toInt())) }
                     } else null,
                 )
             }
@@ -117,10 +121,10 @@ fun SettingsScreen(
                 onClick = {
                     val saved = viewModel.saveTankCapacity(capacity)
                     capacityError = !saved
-                    if (saved) scope.launch { snackbarHostState.showSnackbar("Cambios guardados") }
+                    if (saved) scope.launch { snackbarHostState.showSnackbar(savedMessage) }
                 },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Guardar cambios") }
+            ) { Text(stringResource(Res.string.save)) }
         }
     }
 }

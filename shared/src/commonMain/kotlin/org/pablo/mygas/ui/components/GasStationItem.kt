@@ -1,5 +1,7 @@
 package org.pablo.mygas.ui.components
 
+import org.jetbrains.compose.resources.stringResource
+import org.pablo.mygas.resources.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +29,6 @@ import org.pablo.mygas.core.utils.toEuroText
 import org.pablo.mygas.core.utils.toLiterPriceText
 import org.pablo.mygas.domain.models.GasStation
 import org.pablo.mygas.domain.models.FuelType
-import org.pablo.mygas.domain.models.displayName
 import org.pablo.mygas.domain.models.priceFor
 
 
@@ -91,17 +92,17 @@ fun GasStationItem(
             ) {
                 FuelPriceItem(
                     modifier = Modifier.weight(1f),
-                    label = favoriteFuel.displayName,
+                    label = favoriteFuel.label(),
                     price = gasStation.fuels.priceFor(favoriteFuel).price,
                 )
                 FuelPriceItem(
                     modifier = Modifier.weight(1f),
-                    label = "Media",
+                    label = stringResource(Res.string.price_average),
                     price = gasStation.fuels.priceFor(favoriteFuel).averagePrice
                 )
                 FuelPriceItem(
                     modifier = Modifier.weight(1f),
-                    label = "Depósito",
+                    label = stringResource(Res.string.price_tank),
                     price = tankCapacityLiters?.let { gasStation.fuels.priceFor(favoriteFuel).price?.times(it) },
                     isTotal = true,
                 )

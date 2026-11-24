@@ -1,5 +1,7 @@
 package org.pablo.mygas.ui.screens
 
+import org.jetbrains.compose.resources.stringResource
+import org.pablo.mygas.resources.*
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -33,7 +35,7 @@ fun GasolineraFavoriteScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tus favoritas") },
+                title = { Text(stringResource(Res.string.favorites_title)) },
                 scrollBehavior = scrollBehavior
 
             )
@@ -42,15 +44,15 @@ fun GasolineraFavoriteScreen(
 
     ) { padding ->
         when (val loadState = state.loadState) {
-            Loadable.Loading -> Text("Cargando favoritas...", modifier = Modifier.padding(padding))
+            Loadable.Loading -> Text(stringResource(Res.string.loading), modifier = Modifier.padding(padding))
             is Loadable.Failed -> ErrorState(
                 error = loadState.error,
                 onRetry = viewModel::retry,
                 modifier = Modifier.padding(padding),
             )
             is Loadable.Content -> if (loadState.value.isEmpty()) NoGasStationsFound(
-                title = "Aún no tienes favoritas",
-                message = "Guarda una gasolinera para verla aquí.",
+                title = stringResource(Res.string.no_favorites),
+                message = stringResource(Res.string.no_favorites_hint),
                 modifier = Modifier.padding(padding),
             ) else GasStationList(
                 modifier = Modifier.padding(padding),

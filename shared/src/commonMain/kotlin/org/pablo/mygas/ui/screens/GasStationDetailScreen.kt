@@ -1,5 +1,7 @@
 package org.pablo.mygas.ui.screens
 
+import org.jetbrains.compose.resources.stringResource
+import org.pablo.mygas.resources.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
@@ -63,7 +65,7 @@ fun GasStationDetailScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = "Volver"
+                            contentDescription = stringResource(Res.string.back)
                         )
                     }
                 },
@@ -77,7 +79,7 @@ fun GasStationDetailScreen(
                     }) {
                         Icon(
                             imageVector = if (state.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                            contentDescription = if (state.isFavorite) "Quitar de favoritas" else "Añadir a favoritas"
+                            contentDescription = stringResource(if (state.isFavorite) Res.string.remove_favorite else Res.string.add_favorite)
                         )
                     }
                 }
@@ -96,7 +98,7 @@ fun GasStationDetailScreen(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.LocationOn,
-                    contentDescription = "Iniciar navegación" // Texto para accesibilidad
+                    contentDescription = stringResource(Res.string.open_maps)
                 )
             }
             }
@@ -111,7 +113,7 @@ fun GasStationDetailScreen(
         ) {
 
             when (val loadState = state.loadState) {
-                Loadable.Loading -> Text("Cargando...")
+                Loadable.Loading -> Text(stringResource(Res.string.loading))
                 is Loadable.Failed -> ErrorState(loadState.error, { viewModel.retry(gasStationId) })
                 is Loadable.Content -> {
                     val gasStation = loadState.value

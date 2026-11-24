@@ -28,6 +28,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
+import org.jetbrains.compose.resources.stringResource
 import org.pablo.mygas.ui.screens.GasStationDetailScreen
 import org.pablo.mygas.ui.screens.GasolineraFavoriteScreen
 import org.pablo.mygas.ui.screens.HomeScreen
@@ -113,7 +114,7 @@ private fun AdaptiveNavigationRail(navController: NavHostController) {
                 selected = backStackEntry?.destination.isInGraph(item),
                 onClick = { navController.navigateTopLevel(item.route) },
                 icon = { Icon(item.icon, contentDescription = null) },
-                label = { Text(item.label) },
+                label = { Text(stringResource(item.label)) },
             )
         }
     }
@@ -128,7 +129,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                 selected = backStackEntry?.destination.isInGraph(item),
                 onClick = { navController.navigateTopLevel(item.route) },
                 icon = { Icon(item.icon, contentDescription = null) },
-                label = { Text(item.label) },
+                label = { Text(stringResource(item.label)) },
             )
         }
     }

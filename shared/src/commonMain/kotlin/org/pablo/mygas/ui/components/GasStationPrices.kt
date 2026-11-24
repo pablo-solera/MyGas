@@ -1,5 +1,7 @@
 package org.pablo.mygas.ui.components
 
+import org.jetbrains.compose.resources.stringResource
+import org.pablo.mygas.resources.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +19,6 @@ import org.pablo.mygas.core.utils.toEuroText
 import org.pablo.mygas.core.utils.toLiterPriceText
 import org.pablo.mygas.domain.models.GasStation
 import org.pablo.mygas.domain.models.FuelType
-import org.pablo.mygas.domain.models.displayName
 import org.pablo.mygas.domain.models.priceFor
 
 @Composable
@@ -27,7 +28,7 @@ fun GasStationPrices(
     tankCapacityLiters: Double? = null,
 ) {
     Column {
-        Text("Precios", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(stringResource(Res.string.prices_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -35,11 +36,11 @@ fun GasStationPrices(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = favoriteFuel.displayName,
+                text = favoriteFuel.label(),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = gasStation.fuels.priceFor(favoriteFuel).price?.takeIf { it > 0.0 }?.toLiterPriceText() ?: "Sin datos",
+                text = gasStation.fuels.priceFor(favoriteFuel).price?.takeIf { it > 0.0 }?.toLiterPriceText() ?: stringResource(Res.string.price_unavailable),
                 style = MaterialTheme.typography.titleLarge
             )
         }
@@ -50,13 +51,13 @@ fun GasStationPrices(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Llenar el depósito",
+                text = stringResource(Res.string.estimated_fill),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
                 text = tankCapacityLiters?.let { liters ->
-                    gasStation.fuels.priceFor(favoriteFuel).price?.takeIf { it > 0.0 }?.let { (it * liters).toEuroText() } ?: "Sin datos"
-                } ?: "Configura la capacidad en Ajustes",
+                    gasStation.fuels.priceFor(favoriteFuel).price?.takeIf { it > 0.0 }?.let { (it * liters).toEuroText() } ?: stringResource(Res.string.price_unavailable)
+                } ?: stringResource(Res.string.tank_capacity_hint),
                 style = MaterialTheme.typography.titleLarge
             )
         }

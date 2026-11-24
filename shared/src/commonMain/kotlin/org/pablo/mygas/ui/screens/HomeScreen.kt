@@ -1,5 +1,7 @@
 package org.pablo.mygas.ui.screens
 
+import org.jetbrains.compose.resources.stringResource
+import org.pablo.mygas.resources.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,7 +42,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Encuentra mejor precio") },
+                title = { Text(stringResource(Res.string.home_title)) },
                 scrollBehavior = scrollBehavior
 
             )
@@ -59,7 +61,7 @@ fun HomeScreen(
 
         ) {
             Text(
-                text = "Precios de combustible cerca de ti",
+                text = stringResource(Res.string.home_subtitle),
                 style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
                 color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.align(Alignment.Start),
@@ -67,7 +69,7 @@ fun HomeScreen(
             CustomDropDownMenu(
                 itemList = Provincia.entries,
                 selectedText = state.provincia.displayName,
-                label = "Selecciona una provincia",
+                label = stringResource(Res.string.select_province),
                 itemText = { it.displayName },
                 onValueChange = { viewModel.selectProvincia(it) }
             )
@@ -75,7 +77,7 @@ fun HomeScreen(
                 is Loadable.Content -> CustomDropDownMenu(
                     itemList = municipiosState.value,
                     selectedText = state.municipio,
-                    label = "Selecciona un municipio",
+                    label = stringResource(Res.string.select_town),
                     itemText = { municipio -> municipio.name },
                     onValueChange = viewModel::selectMunicipio
                 )

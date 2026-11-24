@@ -1,5 +1,7 @@
 package org.pablo.mygas.ui.components
 
+import org.jetbrains.compose.resources.stringResource
+import org.pablo.mygas.resources.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -25,7 +27,7 @@ fun GasStationInfo(
             maxLines = 1
         )
         Spacer(Modifier.height(16.dp))
-        Text("Horario", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(stringResource(Res.string.station_schedule), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Text(gasStation.openingHours, style = MaterialTheme.typography.bodyMedium)
         Spacer(Modifier.height(16.dp))
     }

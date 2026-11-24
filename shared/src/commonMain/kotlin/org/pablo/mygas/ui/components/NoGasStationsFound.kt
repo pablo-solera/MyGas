@@ -1,5 +1,7 @@
 package org.pablo.mygas.ui.components
 
+import org.jetbrains.compose.resources.stringResource
+import org.pablo.mygas.resources.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,13 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.pablo.mygas.resources.Res
-import org.pablo.mygas.resources.gasolinera
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun NoGasStationsFound(
-    title: String = "No hay gasolineras en esta zona",
+    title: String = stringResource(Res.string.no_stations),
     message: String? = null,
     modifier: Modifier = Modifier,
 ) {

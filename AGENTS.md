@@ -83,7 +83,7 @@ Ordenadas: `domain` y `ui` no importan `data` (solo `core/di` lo hace). Estructu
 - Los ViewModels solo dependen de casos de uso y de `UserPreferencesRepository`, y exponen `preferences` a la pantalla.
 - Bindings de plataforma (builder de Room, `MapLauncher`) en `platformModule` (`expect val`), sin `GlobalContext`.
 
-Pendiente: mezcla de nombres español/inglés (`Gasolinera*`, `Municipio*`); en código nuevo usa inglés en tipos y funciones y el texto visible va en recursos.
+Textos: todo el texto visible está en `composeResources/values/strings.xml` (solo español). Etiquetas de combustible y errores: `ui/components/UiLabels.kt` (`FuelType.label()`, `NetworkError.message()`). Pendiente: mezcla de nombres español/inglés (`Gasolinera*`, `Municipio*`); en código nuevo usa inglés en tipos y funciones y el texto visible va en recursos.
 
 ## Convenciones
 
@@ -102,7 +102,7 @@ Pendiente: mezcla de nombres español/inglés (`Gasolinera*`, `Municipio*`); en 
 ## Hoja de ruta (contexto para el agente)
 
 1. ~~Migrar a AGP 9~~ (hecho en `chore/agp9-migration`): estructura `shared` + `androidApp` + `desktopApp`. Pendiente: verificar en dispositivo real un APK release con R8 y compilar iOS en macOS/CI.
-2. ~~Ordenar capas~~ (hecho). Siguiente: textos a recursos, tema y accesibilidad.
+2. ~~Ordenar capas~~ y ~~textos a recursos~~ (hecho). Siguiente: tema, accesibilidad y traducciones.
 3. **Mapa en iOS**: implementado con MapKit pero **sin compilar**. Falta verificarlo en macOS/CI y, cuando haya ubicación del usuario, añadir `NSLocationWhenInUseUsageDescription`.
 4. **Publicación en Google Play y App Store**: firma, `versionCode`/`CFBundleVersion`, política de Play, ficha de datos, `Info.plist` (hoy lista `armv7`), `TEAM_ID` vacío en `iosApp/Configuration/Config.xcconfig`. Usa `kmp-store-release` y `play-policy-insights`.
 5. **Ubicación del usuario** (aún no existe: el mapa no tiene botón de "mi ubicación"): permisos en Android e iOS y `LocationProvider` en `commonMain`.
@@ -131,7 +131,7 @@ Si dos skills se contradicen, prevalece este archivo. En particular, ignora cual
 - Regenerar `baselineprofile/src/main/baseline-prof.txt` (referencia el antiguo paquete `mygas.composeapp.generated.resources`).
 - iOS no se ha compilado: `baseName` del framework sigue siendo `ComposeApp` a propósito para no tocar los Swift; solo cambió la tarea de Gradle y la ruta en `project.pbxproj`.
 - `@Preview` de `App.kt` usa la anotación de JetBrains (deprecada) y falla sin Koin.
-- Textos de UI a recursos, tema/modo oscuro del lado Android y accesibilidad.
+- Tema/modo oscuro del lado Android, accesibilidad y traducción al inglés (`values-en`).
 - Informe completo de la auditoría: `docs/AUDITORIA.md`.
 
 ## Reglas para el agente

@@ -1,5 +1,7 @@
 package org.pablo.mygas.ui.components
 
+import org.jetbrains.compose.resources.stringResource
+import org.pablo.mygas.resources.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,21 +35,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import org.pablo.mygas.core.utils.GasStationImage
 import org.pablo.mygas.core.utils.toEuroText
 import org.pablo.mygas.core.utils.toLiterPriceText
 import org.pablo.mygas.domain.models.FuelType
 import org.pablo.mygas.domain.models.GasStation
 import org.pablo.mygas.domain.models.UserPreferences
-import org.pablo.mygas.domain.models.displayName
 import org.pablo.mygas.domain.models.priceFor
-import org.pablo.mygas.resources.Res
-import org.pablo.mygas.resources.estimated_fill
-import org.pablo.mygas.resources.station_go_google_maps
-import org.pablo.mygas.resources.station_opening_hours
-import org.pablo.mygas.resources.station_other_fuels
-import org.pablo.mygas.resources.station_view_detail
 
 /** Quick summary of a station shown when its map pin is tapped. */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -111,7 +105,7 @@ fun StationQuickSheet(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column {
-                        Text(favoriteFuel.displayName, style = MaterialTheme.typography.labelLarge)
+                        Text(favoriteFuel.label(), style = MaterialTheme.typography.labelLarge)
                         Text(
                             text = favoritePrice.price.toLiterPriceText(),
                             style = MaterialTheme.typography.headlineSmall,
@@ -156,7 +150,7 @@ fun StationQuickSheet(
                                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
                             ) {
                                 Text(
-                                    text = "${fuel.displayName}  ${price.toLiterPriceText()}",
+                                    text = "${fuel.label()}  ${price.toLiterPriceText()}",
                                     style = MaterialTheme.typography.labelLarge,
                                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                 )
