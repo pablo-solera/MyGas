@@ -148,4 +148,45 @@ class HomeViewModelTest {
         assertEquals(Loadable.Loading, viewModel.uiState.value.gasStationsState)
         assertEquals(8, viewModel.uiState.value.municipioId)
     }
+
+    @Test
+    fun `refresh keeps the visible list until the new data arrives`() = homeTest {
+        val setup = Setup()
+        setup.stations.municipalityResults[7] = CompletableDeferred(Result.Success(listOf(station(1))))
+        val viewModel = setup.viewModel(StandardTestDispatcher(testScheduler))
+        advanceUntilIdle()
+        viewModel.getGasolinerasByMunicipio(7)
+        advanceUntilIdle()
+
+        val reloaded = CompletableDeferred<Result<List<org.pablo.mygas.domain.models.GasStation>, NetworkError>>()
+        setup.stations.municipalityResults[7] = reloaded
+        viewModel.refreshGasolineras()
+        runCurrent()
+
+        assertTrue(viewModel.uiState.value.isRefreshing)
+        assertEquals(listOf(1), viewModel.uiState.value.gasStations?.map { it.id })
+
+        reloaded.complete(Result.Success(listOf(station(2))))
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.uiState.value.isRefreshing)
+        assertEquals(listOf(2), viewModel.uiState.value.gasStations?.map { it.id })
+    }
+
+    @Test
+    fun `a failed refresh keeps the previous list`() = homeTest {
+        val setup = Setup()
+        setup.stations.municipalityResults[7] = CompletableDeferred(Result.Success(listOf(station(1))))
+        val viewModel = setup.viewModel(StandardTestDispatcher(testScheduler))
+        advanceUntilIdle()
+        viewModel.getGasolinerasByMunicipio(7)
+        advanceUntilIdle()
+
+        setup.stations.municipalityResults[7] = CompletableDeferred(Result.Error(NetworkError.NO_INTERNET))
+        viewModel.refreshGasolineras()
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.uiState.value.isRefreshing)
+        assertEquals(listOf(1), viewModel.uiState.value.gasStations?.map { it.id })
+    }
 }

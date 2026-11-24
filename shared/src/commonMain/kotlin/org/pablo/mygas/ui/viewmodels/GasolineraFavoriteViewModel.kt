@@ -27,6 +27,7 @@ import org.pablo.mygas.ui.state.Loadable
 data class GasolineraFavoriteState(
     val gasStationIds: List<Int> = emptyList(),
     val loadState: Loadable<List<GasStation>> = Loadable.Idle,
+    val isRefreshing: Boolean = false,
 )
 
 class GasolineraFavoriteViewModel(
@@ -77,10 +78,19 @@ class GasolineraFavoriteViewModel(
                         it.copy(
                             loadState = if (stations.isEmpty() && firstError != null) Loadable.Failed(firstError)
                             else Loadable.Content(stations),
+                            isRefreshing = false,
                         )
                     }
                 }
         }
+    }
+
+    /** Reloads every favourite keeping the visible list until the new data arrives. */
+    fun refresh() {
+        observationJob?.cancel()
+        observationJob = null
+        _state.update { it.copy(isRefreshing = true) }
+        observeFavorites()
     }
 
     fun retry() {

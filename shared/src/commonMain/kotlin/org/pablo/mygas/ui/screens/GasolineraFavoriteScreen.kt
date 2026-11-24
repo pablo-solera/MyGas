@@ -8,6 +8,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
@@ -55,13 +57,18 @@ fun GasolineraFavoriteScreen(
                 title = stringResource(Res.string.no_favorites),
                 message = stringResource(Res.string.no_favorites_hint),
                 modifier = Modifier.padding(padding),
-            ) else GasStationList(
-                modifier = Modifier.padding(padding),
-                gasStations = loadState.value,
-                favoriteFuel = preferences.favoriteFuel,
-                tankCapacityLiters = preferences.tankCapacityLiters,
-                onClick = { onGasStationClick(it.id) }
-            )
+            ) else PullToRefreshBox(
+                isRefreshing = state.isRefreshing,
+                onRefresh = viewModel::refresh,
+                modifier = Modifier.padding(padding).padding(horizontal = 20.dp),
+            ) {
+                GasStationList(
+                    gasStations = loadState.value,
+                    favoriteFuel = preferences.favoriteFuel,
+                    tankCapacityLiters = preferences.tankCapacityLiters,
+                    onClick = { onGasStationClick(it.id) }
+                )
+            }
             else -> Unit
         }
     }

@@ -28,6 +28,7 @@ data class HomeState(
     val municipioId: Int? = null,
     val municipiosState: Loadable<List<Municipality>> = Loadable.Idle,
     val gasStationsState: Loadable<List<GasStation>> = Loadable.Idle,
+    val isRefreshing: Boolean = false,
 ) {
     val municipios: List<Municipality>?
         get() = (municipiosState as? Loadable.Content)?.value
@@ -92,14 +93,24 @@ class HomeViewModel(
 
     fun getGasolinerasByMunicipio(municipioId: Int) {
         if (_uiState.value.municipioId == municipioId && _uiState.value.gasStations != null) return
+        loadStations(municipioId, silent = false)
+    }
 
+    /** Reloads the current municipality keeping the visible list until the new data arrives. */
+    fun refreshGasolineras() {
+        val id = _uiState.value.municipioId ?: return
+        loadStations(id, silent = true)
+    }
+
+    private fun loadStations(municipioId: Int, silent: Boolean) {
         gasStationsJob?.cancel()
         val request = ++gasStationsRequest
         _uiState.update { current ->
             current.copy(
                 municipioId = municipioId,
                 municipio = current.municipios?.find { it.id == municipioId }?.name.orEmpty(),
-                gasStationsState = Loadable.Loading,
+                gasStationsState = if (silent) current.gasStationsState else Loadable.Loading,
+                isRefreshing = silent,
             )
         }
         gasStationsJob = viewModelScope.launch {
@@ -110,12 +121,20 @@ class HomeViewModel(
                     }
                     ensureActive()
                     if (request != gasStationsRequest) return@launch
-                    _uiState.update { it.copy(gasStationsState = Loadable.Content(stations)) }
+                    _uiState.update {
+                        it.copy(gasStationsState = Loadable.Content(stations), isRefreshing = false)
+                    }
                 }
 
                 is Result.Error -> {
                     if (request != gasStationsRequest) return@launch
-                    _uiState.update { it.copy(gasStationsState = Loadable.Failed(result.error)) }
+                    _uiState.update {
+                        val keepContent = silent && it.gasStationsState is Loadable.Content
+                        it.copy(
+                            gasStationsState = if (keepContent) it.gasStationsState else Loadable.Failed(result.error),
+                            isRefreshing = false,
+                        )
+                    }
                 }
             }
         }
