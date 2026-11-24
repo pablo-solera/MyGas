@@ -2,6 +2,7 @@ package org.pablo.mygas.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 
 val MyGasTypography = Typography().run {
     copy(
@@ -13,9 +14,9 @@ val MyGasTypography = Typography().run {
 }
 
 object MyGasSpacing {
-    val xs = androidx.compose.ui.unit.Dp(4f)
-    val sm = androidx.compose.ui.unit.Dp(8f)
-    val md = androidx.compose.ui.unit.Dp(16f)
-    val lg = androidx.compose.ui.unit.Dp(24f)
-    val xl = androidx.compose.ui.unit.Dp(32f)
+    val xs = 4.dp
+    val sm = 8.dp
+    val md = 16.dp
+    val lg = 24.dp
+    val xl = 32.dp
 }
